@@ -1,0 +1,777 @@
+<title>축산 식품 가공 공장</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Black+Han+Sans&family=IBM+Plex+Mono:wght@500&family=IBM+Plex+Sans+KR:wght@400;500;600&display=swap">
+<style>
+/* Layout: 왼쪽 기준. 위에 제품 선택, 아래에 공장 라인(연한 바탕)과 운전 패널을 나란히 둔다. */
+:root{
+  --bg:#f5f5f0; --panel:#ffffff; --stage:#e9ebe2; --ink:#232822; --muted:#5b645a; --line:#d7dccf;
+  --accent:#b0402a; --accent-ink:#ffffff;
+  --ca:#2f80c9; --cb:#e8820c; --cd:#d9ac00; --hot:#d1471f; --cool:#2d7fc4; --water:#5aa9e0;
+  --good:#17803f; --bad:#c23b3b; --warn:#a86a00;
+  --display:'Black Han Sans','Apple SD Gothic Neo','Malgun Gothic',sans-serif;
+  --body:'IBM Plex Sans KR','Apple SD Gothic Neo','Malgun Gothic',system-ui,sans-serif;
+  --mono:'IBM Plex Mono',ui-monospace,Menlo,Consolas,monospace;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#141713; --panel:#1d221b; --stage:#272d24; --ink:#eaf0e4; --muted:#a3ae9c; --line:#363e32;
+    --accent:#ff9c82; --accent-ink:%%ACID%%;
+    --ca:#5aa6ea; --cb:#ffa238; --cd:#f0c53a; --hot:#ff7f56; --cool:#6fb3f2; --water:#7cc0f2;
+    --good:#4cc885; --bad:#ff7d7d; --warn:#f0b04a; color-scheme:dark;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#141713; --panel:#1d221b; --stage:#272d24; --ink:#eaf0e4; --muted:#a3ae9c; --line:#363e32;
+  --accent:#ff9c82; --accent-ink:%%ACID%%;
+  --ca:#5aa6ea; --cb:#ffa238; --cd:#f0c53a; --hot:#ff7f56; --cool:#6fb3f2; --water:#7cc0f2;
+  --good:#4cc885; --bad:#ff7d7d; --warn:#f0b04a; color-scheme:dark;
+}
+*{box-sizing:border-box}
+[hidden]{display:none!important}
+body{margin:0;background:var(--bg);color:var(--ink);font:400 15px/1.65 var(--body);padding-block:22px 56px;
+  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+.wrap{max-width:1040px;margin:0 auto}
+.kicker{font:500 12px var(--mono);letter-spacing:.08em;color:var(--accent);margin:0}
+h1{font:400 clamp(32px,7vw,50px)/1.08 var(--display);margin:6px 0 8px;letter-spacing:-.01em;text-wrap:balance}
+h2{font:600 21px/1.35 var(--body);margin:0 0 4px}
+h3{font:600 16px/1.4 var(--body);margin:0}
+p{margin:0}
+.lead{color:var(--muted);max-width:62ch}
+.tabs{display:flex;gap:2px;overflow-x:auto;border-bottom:1px solid var(--line);margin:20px 0 20px;scrollbar-width:thin}
+.tabs button{flex:none;background:none;border:0;border-bottom:3px solid transparent;margin-bottom:-1px;padding:10px 13px;font:600 15px var(--body);color:var(--muted);cursor:pointer;white-space:nowrap}
+.tabs button[aria-selected="true"]{color:var(--ink);border-bottom-color:var(--accent)}
+button:focus-visible,input:focus-visible,select:focus-visible,summary:focus-visible,.stn:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+.chips{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:10px}
+.chip{font:600 14px var(--body);padding:8px 14px;border-radius:999px;border:1px solid var(--line);background:var(--panel);color:var(--ink);cursor:pointer}
+.chip[aria-pressed="true"]{background:var(--accent);color:var(--accent-ink);border-color:var(--accent)}
+.chip:disabled{opacity:.55;cursor:default}
+
+.pg{display:flex;flex-wrap:wrap;gap:6px 8px;align-items:center;margin-bottom:8px}
+.pgl{font:600 12px var(--body);color:var(--muted);min-width:78px}
+.src{font-size:12.5px;color:var(--muted)}
+.io{font-size:13px;color:var(--muted)}
+.notes{margin:0 0 14px;border:1px solid var(--line);border-radius:12px;background:var(--panel)}
+.notes summary{padding:10px 14px;font-weight:600;cursor:pointer}
+.nbody{display:grid;gap:8px;padding:0 12px 12px;grid-template-columns:repeat(auto-fit,minmax(250px,1fr))}
+.nc{border:1px solid var(--line);border-radius:10px;padding:9px 12px;font-size:14px;line-height:1.55}
+.nc b{display:block;color:var(--accent);margin-bottom:1px}
+.pl rect{fill:var(--panel);stroke:var(--muted);stroke-width:1.2;stroke-dasharray:3 2}
+.pl text{fill:var(--muted);font-weight:600;font-family:var(--body)}
+.pl.got.add rect{fill:var(--water);stroke:var(--water);stroke-dasharray:none}
+.pl.got.add text{fill:#06202f}
+.pl.got.out rect{fill:var(--warn);stroke:var(--warn);stroke-dasharray:none}
+.pl.got.out text{fill:#1d1300}
+.intro{max-width:70ch;margin-bottom:14px;color:var(--muted)}
+.intro b{color:var(--ink)}
+.grid2{display:grid;grid-template-columns:minmax(0,1.55fr) minmax(0,1fr);gap:18px;align-items:start}
+@media(max-width:820px){.grid2{grid-template-columns:minmax(0,1fr)}}
+.stage{background:var(--stage);border-radius:12px;padding:10px;min-width:0}
+.stage svg{display:block;width:100%;height:auto}
+.states{display:flex;flex-wrap:wrap;gap:4px 6px;align-items:center;margin:0 0 10px;font-size:13px}
+.states span{display:inline-flex;align-items:center;gap:5px;padding:2px 8px;border-radius:999px;border:1px solid var(--line);background:var(--panel);color:var(--muted)}
+.states span i{width:10px;height:10px;border-radius:50%;background:var(--c);border:1px solid var(--ink)}
+.states span.on{color:var(--ink);font-weight:600;border-color:var(--ink)}
+.states em{font-style:normal;color:var(--muted)}
+.ctrl{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:16px;display:flex;flex-direction:column;gap:12px;min-width:0}
+.ph{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.badge{display:inline-grid;place-items:center;min-width:26px;height:26px;border-radius:50%;background:var(--accent);color:var(--accent-ink);font:600 14px var(--mono)}
+.tag{font:500 12px var(--mono);background:var(--stage);padding:2px 8px;border-radius:4px;color:var(--ink)}
+.desc{font-size:14.5px;color:var(--muted)}
+.desc b{color:var(--ink)}
+.field label{display:flex;justify-content:space-between;gap:8px;font-weight:600}
+.field output{font:500 14px var(--mono);color:var(--accent)}
+input[type=range]{width:100%;accent-color:var(--accent);margin:6px 0 0}
+.read{font-size:13.5px;color:var(--muted);min-height:1.5em}
+.read b{color:var(--ink);font-family:var(--mono);font-weight:500}
+.btn{font:600 15px var(--body);border:0;border-radius:8px;padding:10px 16px;background:var(--accent);color:var(--accent-ink);cursor:pointer}
+.btn:disabled{opacity:.5;cursor:default}
+.btn.ghost{background:transparent;color:var(--ink);border:1px solid var(--line)}
+.row{display:flex;gap:8px;flex-wrap:wrap}
+.meter{display:grid;grid-template-columns:70px minmax(0,1fr) 48px;gap:8px;align-items:center;font-size:13px}
+.meter b{font:500 13px var(--mono);text-align:right}
+.mbar{height:12px;border-radius:6px;background:var(--stage);overflow:hidden}
+.mbar i{display:block;height:100%;width:0;background:var(--accent);transition:width .25s}
+.log{margin:0;padding:0;list-style:none;display:flex;flex-direction:column;gap:6px;font-size:13.5px}
+.log li{border-left:3px solid var(--line);padding:2px 0 2px 10px;color:var(--muted)}
+.log li.s2{border-color:var(--good)}.log li.s1{border-color:var(--warn)}.log li.s0{border-color:var(--bad)}
+.log li b{color:var(--ink)}
+.stn{cursor:pointer}
+.stn rect.bx{fill:var(--panel);stroke:var(--line);stroke-width:2;transition:stroke .2s}
+.stn.cur rect.bx{stroke:var(--accent);stroke-width:4}
+.stn.done rect.bx{fill:var(--stage);stroke:var(--accent);stroke-width:1.5}
+.stn.view rect.bx{stroke:var(--ink);stroke-dasharray:6 4;stroke-width:2.5}
+.stn text{pointer-events:none}
+.gl{transform-box:fill-box;transform-origin:center}
+.stn.work .gl{animation:wob .28s ease-in-out infinite alternate}
+.stn.work .spin{animation:spin .7s linear infinite;transform-box:fill-box;transform-origin:center}
+@keyframes wob{from{transform:rotate(-7deg) scale(1.06)}to{transform:rotate(7deg) scale(1.06)}}
+@keyframes spin{to{transform:rotate(360deg)}}
+#tok circle.t{transition:fill .5s}
+.result{margin-top:18px;background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:16px}
+.result h3{margin-bottom:8px}
+.grade{display:flex;gap:12px;align-items:baseline;flex-wrap:wrap;margin-bottom:10px}
+.grade b{font:500 28px var(--mono)}
+table.tbl{border-collapse:collapse;width:100%;font-size:13.5px}
+.tbl th,.tbl td{border:1px solid var(--line);padding:6px 8px;text-align:left;vertical-align:top}
+.tbl th{background:var(--stage)}
+.scroll{overflow-x:auto}
+.ok{color:var(--good);font-weight:600}.no{color:var(--bad);font-weight:600}.mid{color:var(--warn);font-weight:600}
+.cards{display:flex;flex-wrap:wrap;gap:8px;margin:10px 0}
+.cards button{font:500 14.5px var(--body);padding:9px 12px;border-radius:8px;border:1px solid var(--line);background:var(--panel);color:var(--ink);cursor:pointer;text-align:left}
+.cards button:disabled{opacity:.4;cursor:default}
+.cards button.shake{animation:shake .3s;border-color:var(--bad)}
+@keyframes shake{25%{transform:translateX(-4px)}75%{transform:translateX(4px)}}
+ol.seq{margin:8px 0 0;padding-left:22px;display:flex;flex-direction:column;gap:4px}
+.msg{margin-top:8px;min-height:3em;font-weight:500}
+fieldset.q{border:0;border-top:1px solid var(--line);margin:0;padding:16px 0}
+fieldset.q legend{font-weight:600;padding:0;margin-bottom:8px;max-width:64ch}
+.opts{display:grid;gap:8px;max-width:64ch}
+.opt{text-align:left;font:500 15px var(--body);padding:10px 12px;border-radius:8px;border:1px solid var(--line);background:var(--panel);color:var(--ink);cursor:pointer}
+.opt.right{border-color:var(--good);background:var(--stage)}
+.opt.wrong{border-color:var(--bad)}
+.exp{margin-top:8px;color:var(--muted);max-width:64ch}
+.score{display:flex;gap:14px;align-items:center;flex-wrap:wrap;margin-bottom:6px}
+.score b{font:500 22px var(--mono)}
+.foot{margin-top:32px;font-size:13px;color:var(--muted);max-width:70ch}
+svg text{font-family:var(--body)}
+@media(prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
+</style>
+
+<div class="wrap">
+<header>
+  <p class="kicker">식품과학 Ⅳ-03 · 식품 가공의 실제 · 2 축산 식품의 가공</p>
+  <h1>축산 식품 가공 공장</h1>
+  <p class="lead">고기류, 우유류, 알류 가공품을 공장 라인에서 직접 만들어 봅시다. 염지, 훈연, 살균, 균질, 유화 같은 핵심 원리를 조건을 바꿔 가며 확인해요.</p>
+</header>
+<nav class="tabs" role="tablist" aria-label="활동 메뉴">
+  <button role="tab" id="m-run" data-m="run" aria-selected="true">공장 운전</button>
+  <button role="tab" id="m-ord" data-m="ord" aria-selected="false">공정 순서 맞추기</button>
+  <button role="tab" id="m-quiz" data-m="quiz" aria-selected="false">확인 퀴즈</button>
+</nav>
+<div id="prodChips" role="group" aria-label="제품 선택"></div>
+<p class="intro" id="pIntro"></p>
+<details class="notes" id="notes" hidden><summary id="notesSum">핵심 개념 노트</summary><div class="nbody" id="notesBody"></div></details>
+
+<section id="s-run" role="tabpanel" aria-labelledby="m-run">
+  <div class="states" id="stateBar" aria-label="식품의 상태 변화"></div>
+  <div class="grid2">
+    <div>
+      <div class="stage"><svg id="fSvg" viewBox="0 0 640 288" role="img" aria-label="가상 공장의 공정 라인"></svg></div>
+      <div class="result" id="result" hidden></div>
+    </div>
+    <div class="ctrl" id="panel">
+      <div class="ph"><span class="badge" id="phN">1</span><h3 id="phT"></h3><span class="tag" id="phU"></span></div>
+      <p class="desc" id="phD"></p>
+      <div id="phC"></div>
+      <p class="read" id="phR"></p>
+      <div class="row"><button class="btn" id="bRun" type="button">이 공정 가동 ▶</button><button class="btn ghost" id="bBack" type="button" hidden>현재 공정으로</button></div>
+      <div class="row"><button class="btn ghost" id="bAuto" type="button">자동으로 끝까지</button><button class="btn ghost" id="bReset" type="button">처음부터</button></div>
+      <div class="meter"><span>품질 점수</span><div class="mbar"><i id="qBar"></i></div><b id="qTxt">-</b></div>
+      <ul class="log" id="log" aria-live="polite"></ul>
+    </div>
+  </div>
+</section>
+
+<section id="s-ord" role="tabpanel" aria-labelledby="m-ord" hidden>
+  <p class="intro" style="margin-bottom:0">아래 카드는 섞여 있어요. 제품이 만들어지는 순서대로 눌러 보세요.</p>
+  <div class="cards" id="ordCards"></div>
+  <p class="msg" id="ordMsg" role="status" aria-live="polite"></p>
+  <ol class="seq" id="ordSeq"></ol>
+  <div class="row" style="margin-top:12px"><button class="btn ghost" id="ordReset" type="button">다시 섞기</button></div>
+</section>
+
+<section id="s-quiz" role="tabpanel" aria-labelledby="m-quiz" hidden>
+  <div class="score"><span>점수</span><b id="qzScore">0 / 0</b><button class="btn ghost" id="qzReset" type="button">다시 풀기</button></div>
+  <div id="qzList"></div>
+</section>
+<p class="foot">교과서 185~193쪽 내용을 바탕으로 만든 교육용 모식 시뮬레이션입니다. 화면의 수치(온도·시간·농도 등)는 개념 이해를 위한 값이며 실제 공장의 운전 기준이 아닙니다.</p>
+</div>
+
+<script>
+window.DOM=(()=>{
+const R=(label,min,max,step,val,unit,ideal,near,ok,low,high,read)=>({t:'rng',label,min,max,step,val,unit,ideal,near,ok,low,high,read});
+const O=(label,opts)=>({t:'opt',label,opts});
+const T=(n,k,col,u,d,p,x)=>Object.assign({n,k,col,st:n,u,d,p:p||null},x||{});
+const products=[];
+const G=(g,arr)=>arr.forEach(p=>{p.g=g;products.push(p)});
+const FIG=n=>'교과서 그림 Ⅳ-'+n+'의 상자 구조(갈림길·투입 화살표)를 따라 구성했어요. 상자 안 글자는 본문으로 복원했어요.';
+const TXT='교과서 본문 설명과 일반적인 제조 공정을 바탕으로 구성했어요.';
+const IN=(n,col,st,u)=>T(n,'in',col,u||'원료 품질·신선도 확인',n+'를 확인하고 받아들입니다.',null,{st});
+const PK=(col,st,d)=>T('포장','pack',col,'포장·보관',d||'포장하여 보관합니다.',null,{st});
+const SMK=[['냉훈법','10~30℃','장기 보존 가능, 색과 풍미 부여','살라미, 생햄'],['온훈법','30~50℃','보존성 향상, 풍미 부여','베이컨, 가열 햄'],['열훈법','50~90℃','독특한 풍미, 대량 생산 가능','소시지류, 햄류'],['배훈법','90~120℃','완전 조리 가능','즉석 제품']];
+const SMKC=SMK.map(a=>['훈연 · '+a[0],a[1]+' · '+a[2]+' (예: '+a[3]+')']);
+const CURE=[['염지(curing)','간 먹이기. 본래 고기를 장기 보존하려고 소금에 절이는 조작이며, 요즘은 소금 외 첨가물로 간을 하는 가공 작업을 말해요. 육색소 고정, 보수성·결착성 증가, 저장성↑, 숙성 풍미가 목적이에요.'],['염지 재료','소금, 아질산염·질산염(발색제), 당류, 산화 방지제, 보존제, 유화제 등.'],['염지 방법','건염법(재료를 고기 표면에 문지름), 습염법(염지액에 침지), 염지액 주사법(고기에 염지액을 직접 주입).']];
+
+/* ───── 고기류 ───── */
+G('고기류',[
+{name:'햄',sub:'고기류 · 정형·염지·훈연',src:FIG(52),
+ intro:'돼지고기를 정형하고 염지한 뒤 훈연하거나 가열 처리한 것이에요. 수분 72% 이하, 조지방 10% 이하가 기준입니다.',
+ raw:{col:'#d97a86',st:'원료'},final:'햄',
+ done:'염지로 육색과 보수성을 얻고, 훈연으로 풍미와 저장성을 더한 뒤 가열해 완성합니다. 원료육의 부위·모양에 따라 본인 햄, 본레스 햄, 로인 햄, 숄더 햄 등으로 나뉘어요.',
+ concepts:[...CURE,...SMKC,['햄(ham)','원래 돼지 뒷다리를 뜻하지만 넓은 의미로 돼지고기를 부위별로 정형·염지한 후 훈연하거나 가열한 것. 수분 72% 이하, 조지방 10% 이하.'],['본인 햄 / 본레스 햄','본인 햄은 뼈가 달린 채, 본레스 햄은 뼈를 빼고 원통형으로 말아 만들며 보통 물로 익혀요.'],['로인 햄 / 숄더 햄','로인 햄은 돼지 등심, 숄더 햄은 돼지 어깨 부위로 만든 제품.'],['생햄(raw ham)','저온에서 훈연하거나 훈연·열처리 없이 건조·숙성해 가열 없이 그대로 먹는 햄.'],['프레스 햄','햄과 소시지의 중간 형태. 가격이 저렴하고 대량 생산이 가능하며 제조 기간이 짧아요.']],
+ steps:[
+ IN('원료육 입고','#d97a86','원료육','돼지 뒷다리 등 신선한 원료육 확인'),
+ T('정형','cut','#d97a86','뼈·과다한 지방 제거, 모양 다듬기','부위별로 나누고 뼈와 지방을 다듬어 모양을 정리합니다.',null,{out:'뼈·지방 부스러기',st:'정형육'}),
+ T('염지','salt','#c9606a','육색 고정·보수성·결착성·풍미','소금, 아질산염, 당류 등을 고기에 스며들게 합니다.',
+  O('염지 방법',[['건염법(재료를 문질러 줌)',2,'고기 표면에 염지 재료를 직접 골고루 문질러요.'],['습염법(염지액에 침지)',2,'염지 재료를 녹인 물에 담가 스미게 해요.'],['염지액 주사법',2,'염지액을 고기에 직접 주입해 빠르고 고르게 스며들어요.'],['소금만 겉에 뿌리고 바로 가열',0,'속까지 간이 배지 않고 발색·결착이 안 돼요.']]),{add:'염지 재료(소금·아질산염·당류)',st:'염지육'}),
+ T('충전','press','#bd4f5c','모양 만들기','염지한 고기를 케이싱이나 틀에 채워 모양을 만듭니다.',null,{add:'케이싱',st:'충전육'}),
+ T('건조','dry','#bd4f5c','표면 건조로 연기 부착↑','예비 건조하면 연기가 쉽게 붙고 빛깔이 좋아져요.',null,{st:'건조육'}),
+ T('훈연','smoke','#a8452f','풍미·방부·육색 향상','참나무 같은 목재 연기를 쐬어 줍니다.',
+  R('훈연 온도',0,130,5,70,'℃',[50,90],10,'열훈법(50~90℃)은 햄·소시지류에 알맞아요.','냉훈·온훈 범위예요. 햄을 가열 제품으로 만들 때는 열훈이 일반적입니다.','배훈법(90~120℃)에 가까워 겉이 지나치게 익어요.',v=>v<30?'냉훈법':v<50?'온훈법':v<=90?'열훈법':'배훈법'),{add:'연기(참나무 등)',st:'훈연육'}),
+ T('가열','heat','#a8452f','단백질 응고·살균','중심까지 충분히 익힙니다.',
+  R('중심 온도',40,95,1,72,'℃',[68,78],4,'병원균을 죽이면서 부드러운 식감이 유지돼요.','가열이 부족해 위생상 위험해요.','과열되어 육즙이 빠지고 질겨져요.'),{st:'가열 햄'}),
+ T('냉각·포장','cool','#a8452f','품질 안정·보관','급냉해 포장합니다.',null,{st:'햄'})]},
+
+{name:'프레스 햄',sub:'햄과 소시지의 중간',src:TXT,
+ intro:'고기를 잘라 모아 틀에 넣고 눌러 만든 제품이에요. 값이 싸고 대량 생산하기 좋습니다.',
+ raw:{col:'#d97a86',st:'원료'},final:'프레스 햄',
+ done:'작은 고기 조각을 염지하고 결착시켜 틀에 압착한 뒤 가열합니다. 햄과 소시지의 중간 형태예요.',
+ concepts:[['프레스 햄(pressed ham)','햄과 소시지의 중간 형태로, 가격이 저렴하고 대량 생산이 가능하며 제조 기간이 짧은 제품.'],...CURE],
+ steps:[
+ IN('원료육 입고','#d97a86','원료육'),
+ T('세절','cut','#d97a86','작은 조각으로 자르기','고기를 알맞은 크기로 자릅니다.',null,{st:'세절육'}),
+ T('염지·혼합','salt','#c9606a','결착력·발색','염지 재료와 향신료·결착제를 넣고 섞습니다.',null,{add:'염지 재료·향신료·결착제',st:'염지 혼합육'}),
+ T('충전·압착','press','#bd4f5c','틀에 채워 눌러 모양 만들기','틀에 채우고 눌러 모양을 만듭니다.',null,{add:'틀(케이싱)',st:'성형육'}),
+ T('가열','heat','#a8452f','익히기·살균','틀째로 가열합니다.',null,{st:'가열 제품'}),
+ T('냉각','cool','#a8452f','굳히기','식혀 굳힙니다.',null,{st:'냉각 제품'}),
+ PK('#a8452f','프레스 햄')]},
+
+{name:'베이컨',sub:'삼겹살 · 염지·훈연',src:TXT,
+ intro:'지방이 많은 삼겹살을 정형·염지·훈연해 만들어요. 살균 공정이 없어 지방 산패에 주의해야 합니다.',
+ raw:{col:'#d97a86',st:'원료'},final:'베이컨',
+ done:'수분 60% 이하, 조지방 45% 이하로 만든 뒤 얇게 썰어 셀로판 진공 포장합니다. 살균 공정이 없어 신선한 원료 지방을 쓰고 위생적으로 다뤄야 해요.',
+ concepts:[['베이컨(bacon)','지방이 많은 돼지의 복부육(삼겹살)을 정형·염지한 후 훈연하거나 가열 처리한 것. 제조 공정과 원리는 햄과 유사해요.'],['베이컨의 규격','수분 60% 이하, 조지방 45% 이하. 살균 공정이 없어 지방층이 쉽게 산패돼요.'],['수침','염지 뒤 물에 담가 표면의 소금기를 고르게 빼는 공정.'],...CURE],
+ steps:[
+ IN('삼겹살 입고','#d97a86','삼겹살','지방의 선도가 좋은 것 선택'),
+ T('정형','cut','#d97a86','모양 다듬기','모양을 사각형으로 다듬습니다.',null,{out:'다듬은 부스러기',st:'정형육'}),
+ T('염지','salt','#c9606a','발색·풍미·저장성','염지 재료로 간을 합니다.',null,{add:'염지 재료',st:'염지육'}),
+ T('수침','soak','#c9606a','표면 염분 조절','물에 담가 표면의 소금기를 고르게 합니다.',null,{add:'물',st:'수침육'}),
+ T('건조','dry','#bd4f5c','연기 부착 쉽게','표면을 말립니다.',null,{st:'건조육'}),
+ T('훈연','smoke','#a8452f','풍미·방부','훈연합니다.',
+  R('훈연 온도',0,130,5,40,'℃',[30,50],8,'온훈법(30~50℃)은 베이컨에 알맞아 풍미가 좋고 보존성이 올라가요.','냉훈에 가까워 익지는 않지만 풍미와 보존에는 좋아요.','온도가 높아 지방이 녹고 산패 위험이 커요.',v=>v<30?'냉훈법':v<50?'온훈법':v<=90?'열훈법':'배훈법'),{add:'연기',st:'훈연육'}),
+ T('냉각','cool','#a8452f','굳히기','냉각하여 슬라이스하기 쉽게 합니다.',null,{st:'냉각육'}),
+ T('슬라이스','cut','#a8452f','얇게 썰기','얇게 썹니다.',null,{st:'베이컨 슬라이스'}),
+ T('진공 포장','pack','#a8452f','산화 억제','셀로판 등으로 진공 포장합니다.',null,{st:'베이컨'})]},
+
+{name:'소시지',sub:'유화·충전·훈연 (더메스틱)',src:FIG(54),
+ intro:'고기를 곱게 갈아 유화시키고 케이싱에 채워 훈연·가열합니다. 유화 공정이 품질을 결정해요.',
+ raw:{col:'#d97a86',st:'원료'},final:'소시지',
+ done:'염용성 단백질이 충분히 추출되어 지방·물·단백질이 안정적으로 유화되면 탄력 있는 소시지가 됩니다. 더메스틱 소시지는 훈연 후 건조하지 않고 가열해 수분이 50% 이상이에요.',
+ concepts:[['유화(emulsification)','절단된 고기를 곱게 세절해 결착력을 주고, 얼음·향신료·조미료·증량제·결착제와 섞어 염용성 단백질을 충분히 추출해 단백질·지방·물을 안정적으로 유화시키는 것. 소시지·프레스 햄의 품질을 결정하는 중요한 공정이에요.'],['더메스틱 소시지','훈연 후 건조하지 않고 가열 처리한 것. 수분이 50% 이상이라 부드럽고 맛이 좋으나 장기 저장이 어려워요.'],['소시지(sausage)','육류에 조미료·향신료 등 첨가제를 섞어 케이싱에 충전하고 훈연하거나 열처리한 것.'],['케이싱(casing)','가공한 고기를 균일한 형태로 하거나 보호하려고 쓰는 포장 물질. 소·돼지·양의 창자, 합성 케이싱(콜라젠·셀룰로스·합성수지) 등.'],...CURE,...SMKC],
+ steps:[
+ IN('원료육 입고','#d97a86','원료육'),
+ T('정형','cut','#d97a86','힘줄·과다한 지방 제거','불필요한 부분을 제거합니다.',null,{out:'힘줄·부스러기',st:'정형육'}),
+ T('세절','cut','#d97a86','고기를 곱게 썰기','고기를 알맞은 크기로 세절합니다.',null,{st:'세절육'}),
+ T('염지','salt','#c9606a','염용성 단백질 추출·발색','소금과 염지 재료를 넣어 염용성 단백질을 녹여 내요.',null,{add:'염지 재료',st:'염지육'}),
+ T('유화','mix','#c9606a','단백질·지방·물의 안정된 유화','얼음, 향신료, 조미료, 결착제를 넣고 곱게 갈아 유화시킵니다.',
+  R('유화 중 고기 온도',0,30,1,10,'℃',[0,12],4,'낮은 온도에서 단백질이 지방을 안정적으로 감싸요.','온도가 조금 높아요. 얼음을 더 넣으세요.','온도가 올라 단백질이 변성되고 지방이 분리되어 유화가 깨져요.'),{add:'얼음·향신료·조미료·결착제',st:'유화물'}),
+ T('충전','press','#bd4f5c','케이싱에 채우기','유화물을 케이싱에 채워 모양을 만듭니다.',null,{add:'케이싱',st:'충전 소시지'}),
+ T('건조','dry','#bd4f5c','표면 건조','표면을 예비 건조합니다.',null,{st:'건조 소시지'}),
+ T('훈연','smoke','#a8452f','풍미·색·방부·항산화','훈연합니다.',
+  R('훈연 온도',0,130,5,65,'℃',[50,90],10,'열훈법(50~90℃)은 소시지류 대량 생산에 알맞아요.','범위 밖이지만 큰 문제는 없어요.','온도가 너무 높아 케이싱이 터질 수 있어요.',v=>v<30?'냉훈법':v<50?'온훈법':v<=90?'열훈법':'배훈법'),{add:'연기',st:'훈연 소시지'}),
+ T('가열','heat','#a8452f','살균·단백질 응고','중심까지 가열해 익힙니다.',null,{st:'가열 소시지'}),
+ T('냉각·포장','cool','#a8452f','급냉 후 포장','냉각하고 포장합니다.',null,{st:'소시지'})]},
+
+{name:'드라이 소시지',sub:'건조·숙성형 · 살라미',src:TXT,
+ intro:'날고기를 케이싱에 채워 건조·숙성시키는 소시지예요. 수분을 30% 이하로 낮춰 오래 보관합니다.',
+ raw:{col:'#d97a86',st:'원료'},final:'드라이 소시지',
+ done:'가열하지 않고 저온에서 건조(필요하면 냉훈)해 수분을 30% 이하로 낮춥니다. 저장성이 높아 상온 보관·장기 보관이 가능해요.',
+ concepts:[['드라이 소시지','케이싱에 다져 넣고 날 것 그대로 건조하거나 저온 건조 및 훈연하여 수분을 30% 이하로 만든 소시지.'],['냉훈법','10~30℃에서 장기 보존이 가능하고 색과 풍미를 줘요. 살라미, 생햄 등에 쓰여요.']],
+ steps:[
+ IN('원료육 입고','#d97a86','원료육'),
+ T('세절','cut','#d97a86','다지기','고기와 지방을 잘게 다집니다.',null,{st:'세절육'}),
+ T('염지·혼합','salt','#c9606a','발색·풍미','소금, 향신료, 발색제를 섞습니다.',null,{add:'소금·향신료·발색제',st:'염지 혼합육'}),
+ T('충전','press','#bd4f5c','케이싱에 채우기','다진 고기를 케이싱에 채웁니다.',null,{add:'케이싱',st:'충전 소시지'}),
+ T('냉훈','smoke','#a8452f','향미 부여·방부','저온에서 연기를 쐬어 줍니다.',
+  R('훈연 온도',0,130,5,20,'℃',[10,30],6,'냉훈법(10~30℃)이면 장기 보존에 좋고 풍미도 좋아요.','범위 밖이에요.','온도가 높아 지방이 녹아요.'),{add:'연기',st:'훈연 소시지'}),
+ T('건조·숙성','dry','#8a3a2a','수분 30% 이하로 저장성↑','일정 기간 건조·숙성합니다.',
+  R('목표 수분',10,60,1,28,'%',[20,30],5,'수분 30% 이하라서 저장성이 높아요.','너무 말라 딱딱해요.','수분이 많아 상온 저장 중 변질돼요.'),{out:'수분',st:'드라이 소시지'}),
+ PK('#8a3a2a','드라이 소시지')]}
+]);
+
+/* ───── 우유류 ───── */
+G('우유류',[
+{name:'시유 (우유)',sub:'액상 우유 · 살균·균질',src:FIG(56),
+ intro:'젖소에서 짠 원유를 검사·여과·표준화·균질·살균해 위생적으로 만든 음용 우유예요.',
+ raw:{col:'#f4f0e6',st:'원유'},final:'시유',
+ done:'균질로 지방이 떠오르는 것을 막고, 살균으로 병원균을 죽여 저장성을 높입니다. 살균 방법에 따라 열 변화와 보관 기간이 달라져요.',
+ concepts:[['시유(market milk)','음용을 목적으로 시판되는 우유. 착유한 생유를 살균·균질화해 위생적으로 안전하게 만든 것.'],['균질','물리적인 힘으로 지방구를 작게 만드는 작업. 균질기에서 압력을 가해 작은 구멍(노즐)을 통과시켜 보통 2μm 이하로 만들어요. 크림 분리를 막고 소화 흡수율을 높이며 커드가 연성화돼요.'],['저온 장시간 살균법(LTLT)','63~65℃에서 30분.'],['고온 단시간 살균법(HTST)','72~75℃에서 15초.'],['초고온 살균법(UHT)','130~150℃에서 1~5초. 1~3개월 저장이 가능하지만 높은 온도 때문에 가열 냄새가 나요.'],['표준화','집유한 원유는 품질이 일정하지 않으므로 유지방, 무지고형분, 강화 성분 함량을 조절해 늘 같은 맛과 품질을 만드는 공정.'],['청징','원심력으로 여과 후 남은 이물질·먼지·나쁜 풍미·세균을 제거하는 공정.'],['커드(curd)','우유가 산이나 응유 효소에 의해 생성되는 응고물.'],['유음료·강화우유','우유나 탈지유에 커피·초콜릿·과즙·설탕·안정제를 넣거나 비타민 A·D, DHA 등을 첨가한 것.']],
+ steps:[
+ IN('집유','#f4f0e6','원유','냉각 원유조의 우유 수집·검사','낙농장에서 냉각 원유조에 보관한 우유를 모으고 신선도와 적합성을 검사합니다.'),
+ T('여과','filter','#f4f0e6','이물질 1차 제거','이물질을 1차로 걸러 냅니다.',null,{out:'이물질',st:'여과유'}),
+ T('청징','sep','#f4f0e6','원심력으로 미세 이물·세균 제거','원심력으로 남은 먼지·세균을 제거합니다.',null,{out:'슬러지(먼지·세균)',st:'청징유'}),
+ T('표준화','mix','#f4f0e6','성분 함량 조절','유지방과 무지고형분 함량을 맞춥니다.',
+  R('유지방 함량',0,10,0.1,3.4,'%',[3.0,3.8],0.6,'제품 규격에 맞는 유지방이에요.','유지방이 부족해요. 크림을 더해요.','유지방이 많아요. 탈지유를 더해요.'),{add:'탈지유·크림',st:'표준화유'}),
+ T('균질','press','#f4f0e6','지방구 미세화(2μm 이하)','압력을 가해 노즐을 통과시켜 지방구를 작게 만듭니다.',
+  R('지방구 크기',0,10,0.1,1.5,'μm',[0.1,2],0.8,'2μm 이하로 고르게 분산되어 크림 분리가 없어요.','약간 커요. 압력을 높여 보세요.','지방구가 커서 위에 떠올라 크림층이 생겨요.'),{st:'균질유'}),
+ T('살균','heat','#f7e9d3','병원균·유해균 사멸·효소 파괴','살균 조건을 정합니다.',
+  O('살균 방법',[['저온 장시간(63~65℃, 30분)',2,'LTLT. 열 변화가 가장 적어요.'],['고온 단시간(72~75℃, 15초)',2,'HTST. 가장 널리 쓰여요.'],['초고온(130~150℃, 1~5초)',2,'UHT. 1~3개월 저장되지만 가열 냄새가 나요.'],['50℃에서 5분',0,'병원균이 죽지 않아요.']]),{st:'살균유'}),
+ T('냉각','cool','#e4eef7','급냉으로 품질 유지','5℃ 이하로 급냉합니다.',null,{st:'냉각유'}),
+ T('충전','pack','#e4eef7','무균 충전','용기에 담습니다.',null,{st:'충전 우유'}),
+ T('포장·냉장','pack','#e4eef7','냉장 유통','포장해 냉장 보관합니다.',null,{st:'시유'})]},
+
+{name:'유음료·강화우유',sub:'기호성·영양 강화',src:TXT,
+ intro:'우유나 탈지유에 커피·초콜릿·과즙 등을 넣거나 비타민·DHA를 강화한 제품이에요.',
+ raw:{col:'#f4f0e6',st:'원유'},final:'유음료·강화우유',
+ done:'표준화 단계에서 부재료나 강화 성분을 넣어 기호성이나 영양가를 높입니다.',
+ concepts:[['유음료','우유나 탈지유에 커피·초콜릿·과즙·설탕·안정제 등을 가해 기호성을 높인 것.'],['강화우유','비타민 A·D, DHA 등 영양소를 첨가한 우유.']],
+ steps:[
+ IN('원유 입고','#f4f0e6','원유'),
+ T('여과·청징','filter','#f4f0e6','이물질 제거','이물질을 제거합니다.',null,{out:'이물질',st:'청징유'}),
+ T('표준화','mix','#f4f0e6','성분 조절','성분을 맞춥니다.',null,{st:'표준화유'}),
+ T('배합','mix','#e0c9a6','기호성·영양 강화','커피, 초콜릿, 과즙, 설탕, 안정제 또는 비타민·DHA를 넣습니다.',null,{add:'커피·초콜릿·과즙·설탕·안정제 / 비타민 A·D·DHA',st:'배합액'}),
+ T('균질','press','#e0c9a6','입자 균일','균질화합니다.',null,{st:'균질액'}),
+ T('살균','heat','#e0c9a6','살균','살균합니다.',null,{st:'살균액'}),
+ T('냉각·충전','pack','#e0c9a6','충전','냉각해 충전합니다.',null,{st:'충전 제품'}),
+ PK('#e0c9a6','유음료·강화우유')]},
+
+{name:'가당연유',sub:'농축 · 설탕 첨가',src:TXT,
+ intro:'우유를 농축하면서 설탕을 넣어 만든 연유예요. 설탕이 점성과 보존성을 줍니다.',
+ raw:{col:'#f4f0e6',st:'원유'},final:'가당연유',
+ done:'예열로 미생물·효소를 파괴하고, 진공 농축으로 수분을 줄입니다. 설탕의 삼투압 덕분에 별도의 멸균 없이도 보존성이 있어요.',
+ concepts:[['연유','우유의 수분을 증발시켜 농축한 제품. 설탕을 첨가한 가당연유와 첨가하지 않은 무당연유가 있어요.'],['예열 단계의 목적','미생물과 효소를 파괴해 저장성을 높이고, 농축 중 수분 증발을 빠르게 하며, 단백질 변성으로 열 안정성과 점도를 높여요.']],
+ steps:[
+ IN('원유 입고','#f4f0e6','원유'),
+ T('검사','sort','#f4f0e6','품질 검사','원유의 품질을 검사합니다.',null,{st:'검사유'}),
+ T('표준화','mix','#f4f0e6','성분 조절','성분을 조절합니다.',null,{st:'표준화유'}),
+ T('예열','heat','#f4e0b8','미생물·효소 파괴·점도↑','가열해 예열합니다.',
+  R('예열 온도',50,130,1,90,'℃',[85,100],8,'미생물과 효소가 파괴되고 단백질이 알맞게 변성돼요.','예열이 부족해요.','과열되어 단백질이 지나치게 변성돼요.'),{st:'예열유'}),
+ T('설탕 첨가','mix','#f4e0b8','점성·보존성','설탕을 넣고 녹입니다.',null,{add:'설탕',st:'가당유'}),
+ T('진공 농축','heat','#f4e0b8','수분 증발','낮은 온도에서 진공으로 수분을 증발시킵니다.',null,{out:'수증기(수분)',st:'농축유'}),
+ T('냉각','cool','#f4e0b8','결정 조절','냉각합니다.',null,{st:'냉각 연유'}),
+ T('충전·포장','pack','#f4e0b8','캔 충전','캔에 충전해 포장합니다.',null,{st:'가당연유'})]},
+
+{name:'무당연유',sub:'농축 · 균질·멸균',src:TXT,
+ intro:'설탕 없이 농축한 연유예요. 설탕의 보존 효과가 없어 균질과 고온 멸균이 필수입니다.',
+ raw:{col:'#f4f0e6',st:'원유'},final:'무당연유',
+ done:'설탕에 의한 점성과 보존성이 없으므로 지방 분리를 막는 균질화와 고온 멸균을 반드시 해야 해요.',
+ concepts:[['무당연유','설탕을 넣지 않은 연유. 설탕에 의한 점성과 보존성이 없어 지방 분리를 막기 위한 균질화와 고온 멸균 공정이 필요해요.']],
+ steps:[
+ IN('원유 입고','#f4f0e6','원유'),
+ T('검사·표준화','sort','#f4f0e6','품질 검사·성분 조절','검사하고 성분을 조절합니다.',null,{st:'표준화유'}),
+ T('예열','heat','#f4e0b8','미생물·효소 파괴','가열해 예열합니다.',null,{st:'예열유'}),
+ T('진공 농축','heat','#f4e0b8','수분 증발','진공에서 농축합니다.',null,{out:'수증기',st:'농축유'}),
+ T('균질','press','#f4e0b8','지방 분리 방지','균질기로 지방구를 작게 만듭니다.',
+  O('균질을 할까요?',[['한다',2,'설탕이 없어 점성이 낮아 지방이 쉽게 분리되므로 균질이 필요해요.'],['하지 않는다',0,'지방이 위로 떠올라 분리돼요.']]),{st:'균질 농축유'}),
+ T('충전','pack','#f4e0b8','캔에 담기','캔에 충전합니다.',null,{st:'충전 제품'}),
+ T('고온 멸균','heat','#d9c8a8','보존성 확보','캔째로 고온 멸균합니다.',
+  R('멸균 온도',90,150,1,118,'℃',[115,125],6,'미생물이 완전히 죽어 장기 보존이 돼요.','멸균이 부족해요.','과열되어 색이 갈변되고 맛이 변해요.'),{st:'멸균 제품'}),
+ T('냉각·포장','cool','#d9c8a8','냉각','냉각하고 포장합니다.',null,{st:'무당연유'})]},
+
+{name:'전지분유',sub:'건조 유제품 · 분무 건조',src:TXT,
+ intro:'우유를 농축한 뒤 안개처럼 뿜어 순간 건조해 가루로 만들어요. 수분 5% 이하입니다.',
+ raw:{col:'#f4f0e6',st:'원유'},final:'전지분유',
+ done:'1/3~1/4로 농축한 농축유를 고온의 열풍에 분무하면 우유가 기화열을 빼앗겨 열에 의한 변성이 적습니다. 가볍고 보존성이 커서 저장·수송에 유리해요.',
+ concepts:[['분유','우유 또는 탈지유를 수분 5% 이하로 농축·건조한 것. 용적이 작고 가벼워 저장과 수송에 유리해요.'],['분유의 종류','전지분유(전유를 건조), 탈지분유(탈지유를 건조), 조제분유(모유와 비슷하게 영양 성분을 조정해 건조).'],['분무 건조','고온의 열풍에 농축유를 안개 모양으로 뿜어 순간적으로 건조하는 방법. 기화열 때문에 우유의 열 변성이 적어요.'],['기화열','액체가 기화할 때 외부로부터 흡수하는 열량. 증발열이라고도 해요.']],
+ steps:[
+ IN('원유 입고','#f4f0e6','원유'),
+ T('검사','sort','#f4f0e6','품질 검사','검사합니다.',null,{st:'검사유'}),
+ T('표준화','mix','#f4f0e6','성분 조절','성분을 조절합니다.',null,{st:'표준화유'}),
+ T('예열','heat','#f4e0b8','미생물·효소 파괴','예열합니다.',null,{st:'예열유'}),
+ T('진공 농축','heat','#f4e0b8','1/3~1/4로 농축','진공에서 수분을 증발시킵니다.',
+  R('농축 배율',1,8,0.5,3,'배',[3,4],0.7,'알맞게 농축되어 분무 건조 효율이 좋아요.','덜 농축되어 건조에 에너지가 많이 들어요.','너무 농축되어 점도가 높아 분무가 안 돼요.'),{out:'수증기',st:'농축유'}),
+ T('분무 건조','dry','#fff8e6','순간 건조로 가루 만들기','고온 열풍에 안개처럼 뿜어 건조합니다.',null,{add:'열풍',st:'분유'}),
+ T('냉각·체질','sort','#fff8e6','입자 균일','식히고 체로 칩니다.',null,{st:'분유'}),
+ PK('#fff8e6','전지분유','수분 5% 이하로 습기를 막아 포장합니다.')]},
+
+{name:'아이스크림',sub:'우유 가공품 · 동결',src:TXT,
+ intro:'우유와 크림에 당·안정제를 섞어 살균·균질하고 얼리면서 공기를 넣어 만들어요.',
+ raw:{col:'#fbeed0',st:'원료'},final:'아이스크림',
+ done:'숙성 중 지방과 안정제가 안정되고, 얼리면서 공기가 섞여 부드러운 조직이 됩니다.',
+ concepts:[['아이스크림','우유·크림 등을 원료로 당, 안정제 등을 넣어 살균·균질하고 숙성한 뒤 공기를 섞으며 얼린 제품.']],
+ steps:[
+ IN('원료 입고','#fbeed0','원료'),
+ T('배합','mix','#fbeed0','원료 혼합','우유, 크림, 설탕, 안정제를 섞습니다.',null,{add:'크림·설탕·안정제',st:'배합액'}),
+ T('살균','heat','#fbeed0','미생물 사멸','살균합니다.',null,{st:'살균 배합액'}),
+ T('균질','press','#fbeed0','지방구 미세화','균질화합니다.',null,{st:'균질 배합액'}),
+ T('냉각·숙성','cool','#e4eef7','안정제 수화·조직 안정','냉각해 숙성시킵니다.',null,{st:'숙성 배합액'}),
+ T('동결(프리징)','cool','#d5e7f5','공기 혼입·결빙','저으면서 얼려 공기를 넣습니다.',null,{add:'공기',st:'아이스크림 반죽'}),
+ T('충전·경화','cool','#d5e7f5','급속 동결','용기에 담아 급속 경화합니다.',null,{st:'경화 제품'}),
+ PK('#d5e7f5','아이스크림')]}
+]);
+
+/* ───── 발효유·치즈 ───── */
+G('발효유·치즈',[
+{name:'자연 치즈',sub:'레닛 응고·숙성',src:FIG(60),
+ intro:'우유에 스타터와 레닛을 넣어 커드를 만들고, 유청을 빼고 눌러 숙성시킵니다.',
+ raw:{col:'#f4f0e6',st:'원유'},final:'자연 치즈',
+ done:'스타터가 젖산을 만들고, 레닛이 카세인을 응고시켜 커드가 됩니다. 유청을 제거·압착·가염한 뒤 숙성하는 동안 세균이나 곰팡이가 단백질·지방을 분해해 풍미와 질감이 생겨요.',
+ concepts:[['치즈','우유를 응유 효소인 레닛이나 젖산 등으로 응고시킨 후 세균이나 곰팡이 등으로 숙성시킨 유제품. 크게 자연 치즈와 가공 치즈로 구분해요.'],['자연 치즈','전유·탈지유·크림 등에 응유 효소·젖산균·유기산을 이용해 카세인을 응고시킨 후 유청을 제거하고 압착·성형해 숙성시킨 것.'],['레닛(rennet)','송아지 제4위에서 분비되는 효소 복합체로, 우유를 응고시켜요. 미생물이나 식물에서 대체 효소를 얻기도 해요.'],['스타터','우유를 응고시키기 전에 적당한 산을 만들어 주려고 넣는 종균 미생물. 젖산 생성과 함께 풍미와 조직을 개선해요.'],['커드와 유청','커드는 응고된 덩어리, 유청은 커드에서 빠져나오는 액체. 유청을 원활히 빼려고 교반·가온·압착·성형을 해요.'],['가염 처리','이상 발효를 막고 단단한 조직을 만들기 위해 소금을 넣는 일.'],['가공 치즈','자연 치즈를 녹여 유화제 등과 섞어 가열·성형한 것.']],
+ steps:[
+ IN('원유 입고','#f4f0e6','원유'),
+ T('검사·살균','heat','#f4f0e6','원료 확인·미생물 억제','검사하고 살균합니다.',null,{st:'살균유'}),
+ T('냉각','cool','#f4f0e6','발효 온도로 식힘','발효에 알맞은 온도로 식힙니다.',null,{st:'냉각유'}),
+ T('스타터 첨가·발효','ferment','#f4ead0','젖산 생성·풍미·조직 개선','스타터를 넣어 젖산을 만듭니다.',
+  R('발효 온도',10,50,1,32,'℃',[28,36],4,'젖산균이 잘 자라 산이 알맞게 만들어져요.','젖산 생성이 느려요.','균이 약해지거나 이상 발효가 생겨요.'),{add:'스타터(젖산균)',st:'발효유'}),
+ T('레닛 첨가·응고','ferment','#f9f2d8','카세인 응고(커드 생성)','레닛을 넣어 단백질을 응고시킵니다.',null,{add:'레닛(응유 효소)',st:'커드'}),
+ T('커드 절단','cut','#f9f2d8','유청이 잘 빠지도록','커드를 작게 자릅니다.',null,{st:'절단 커드'}),
+ T('교반·가온','heat','#f9f2d8','유청 배출 촉진','저으며 가온합니다.',null,{st:'가온 커드'}),
+ T('유청 제거','filter','#f9f2d8','유청 분리','유청을 걸러 냅니다.',null,{out:'유청',st:'커드'}),
+ T('압착·성형','press','#f4e6a8','수분 제거·모양 만들기','틀에 넣고 눌러 성형합니다.',null,{out:'남은 유청',st:'성형 커드'}),
+ T('가염','salt','#f4e6a8','이상 발효 방지·조직 단단','소금을 넣습니다.',null,{add:'소금',st:'가염 커드'}),
+ T('숙성','ferment','#e8c96d','단백질·지방 분해로 풍미·질감','알맞은 온도·습도에서 숙성합니다.',
+  O('숙성 조건',[['치즈 종류에 맞는 온도·습도·기간',2,'세균·곰팡이가 단백질과 지방을 분해해 풍미와 질감을 만들어요.'],['숙성 없이 바로 출하',0,'풍미와 조직이 형성되지 않아요.'],['실온에 방치',0,'이상 발효와 변질 위험이 커요.']]),{st:'자연 치즈'})]},
+
+{name:'호상 요구르트',sub:'발효유 · 젖산 발효',src:TXT,
+ intro:'우유를 젖산균으로 발효시켜 커드를 만든 뒤 감미료·과일·안정제 등을 넣어 먹기 좋게 만들어요.',
+ raw:{col:'#f4f0e6',st:'원유'},final:'요구르트',
+ done:'젖산균이 젖당을 젖산으로 바꾸면 산 때문에 단백질이 엉겨 커드가 형성되고, 유해균 증식이 억제되어 보존성이 생깁니다.',
+ concepts:[['발효유','포유류의 젖을 원료로 젖산균·효모를 이용해 젖당을 젖산으로 발효시켜 단백질 커드를 형성시키고, 감미료·향신료·과일·과즙·잼·젤라틴·녹말 등 안정제를 넣어 마시기 좋게 만든 것.'],['젖산 발효유','농후 발효유(호상 요구르트·액상 요구르트), 액상 발효유, 젖산균 음료. 이 순서로 기준 젖산균 수가 줄어요.'],['젖산-알코올 발효유','말젖으로 만든 쿠미스, 우유·산양유로 만든 케피어. 젖산균과 효모가 함께 발효해 알코올과 이산화탄소를 함유해요.'],['발효유의 효과','젖산균이 자라면서 유해균·병원균의 증식이 억제되어 보존성이 있고, 장내에서 소화 흡수를 돕고 정장 작용을 해요.']],
+ steps:[
+ IN('원유 입고','#f4f0e6','원유'),
+ T('표준화','mix','#f4f0e6','성분 조절','성분을 맞춥니다.',null,{add:'탈지분유',st:'표준화유'}),
+ T('균질','press','#f4f0e6','지방구 미세화','균질화합니다.',null,{st:'균질유'}),
+ T('살균','heat','#f4f0e6','잡균 제거·단백질 변성','가열 살균합니다.',null,{st:'살균유'}),
+ T('냉각','cool','#f4f0e6','발효 온도로 식힘','발효 온도로 식힙니다.',null,{st:'냉각유'}),
+ T('종균 접종','mix','#f4ead0','젖산균 접종','젖산균(스타터)을 넣습니다.',null,{add:'젖산균(스타터)',st:'접종유'}),
+ T('발효','ferment','#f9f2d8','젖당 → 젖산, 커드 형성','알맞은 온도에서 발효시킵니다.',
+  R('발효 온도',20,55,1,42,'℃',[40,45],4,'젖산균이 활발해 커드가 부드럽게 만들어져요.','발효가 느려 시간이 오래 걸려요.','젖산균이 약해지고 신맛이 지나쳐요.'),{st:'커드'}),
+ T('냉각·숙성','cool','#f9f2d8','발효 정지·맛 안정','식혀 발효를 멈춥니다.',null,{st:'냉각 커드'}),
+ T('부재료 혼합','mix','#f9e0e4','감미료·과일·안정제','감미료, 과일, 안정제를 넣습니다.',null,{add:'감미료·과일·안정제',st:'혼합 요구르트'}),
+ T('충전·포장','pack','#f9e0e4','냉장 포장','용기에 담아 냉장합니다.',null,{st:'요구르트'})]},
+
+{name:'액상 발효유 · 케피어',sub:'젖산-알코올 발효유',src:TXT,
+ intro:'젖산균과 효모가 함께 발효해 알코올과 이산화탄소를 조금 만드는 발효유예요.',
+ raw:{col:'#f4f0e6',st:'원료'},final:'케피어',
+ done:'젖산균이 젖산을, 효모가 알코올과 이산화탄소를 만들어 톡 쏘는 맛이 납니다. 말젖으로는 쿠미스, 우유·산양유로는 케피어를 만들어요.',
+ concepts:[['케피어','우유나 산양유를 원료로, 젖산균과 효모가 함께 발효해 알코올과 이산화탄소를 함유하는 발효유.'],['쿠미스','말젖을 원료로 한 젖산-알코올 발효유.']],
+ steps:[
+ IN('원유 입고','#f4f0e6','원유'),
+ T('살균','heat','#f4f0e6','잡균 제거','살균합니다.',null,{st:'살균유'}),
+ T('냉각','cool','#f4f0e6','접종 온도','식힙니다.',null,{st:'냉각유'}),
+ T('종균 접종','mix','#f4ead0','젖산균+효모 접종','케피어 종균을 넣습니다.',null,{add:'젖산균·효모',st:'접종유'}),
+ T('발효','ferment','#f9f2d8','젖산·알코올·CO₂ 생성','상온에서 발효시킵니다.',
+  R('발효 온도',10,40,1,22,'℃',[18,26],4,'젖산균과 효모가 균형 있게 자라요.','발효가 느려요.','효모가 지나치게 증식해 알코올·신맛이 강해요.'),{st:'발효유'}),
+ T('여과·숙성','filter','#f9f2d8','종균 분리·맛 안정','종균을 걸러 내고 냉장 숙성합니다.',null,{out:'케피어 알갱이',st:'케피어'}),
+ PK('#f9f2d8','케피어')]}
+]);
+
+/* ───── 크림·버터 ───── */
+G('크림·버터',[
+{name:'크림',sub:'원심 분리 · 크림 종류',src:TXT,
+ intro:'우유의 지방 층을 원심 분리기로 분리한 것이 크림이에요. 지방 함량에 따라 쓰임이 달라집니다.',
+ raw:{col:'#f4f0e6',st:'원유'},final:'크림',
+ done:'지방은 비중이 낮아 위로 떠오르므로 원심력으로 빠르게 분리할 수 있어요. 지방 함량에 따라 커피 크림, 휘핑크림, 사워크림, 플라스틱 크림이 돼요.',
+ concepts:[['크림','우유를 방치하면 떠오르는 지방이 많은 층. 원심 분리기로 분리하며 커피·버터·아이스크림·제과 등에 써요.'],['커피 크림','라이트 크림·테이블 크림. 커피의 풍미를 온화하게 하고 색을 연하게 만들어요.'],['휘핑크림','유지방 30~36%의 연한 휘핑크림, 36% 이상의 진한 휘핑크림. 케이크·디저트에 써요.'],['발효 크림(사워크림)','유지방 18% 이상의 크림을 젖산균으로 발효시켜 새콤한 맛이 나는 것.'],['플라스틱 크림','더 원심 분리해 유지방을 80% 이상으로 높인 것. 실온에서 고체이며 버터·아이스크림 원료.']],
+ steps:[
+ IN('원유 입고','#f4f0e6','원유'),
+ T('예열','heat','#f4f0e6','분리 효율↑','알맞게 데웁니다.',null,{st:'예열유'}),
+ T('원심 분리','sep','#fff4c9','지방과 탈지유 분리','원심 분리기로 크림과 탈지유로 나눕니다.',null,{out:'탈지유',st:'크림'}),
+ T('크림 종류 선택','sort','#fff4c9','용도에 맞는 지방 함량','용도에 따라 지방 함량을 정합니다.',
+  O('만들 크림',[['커피 크림(라이트 크림)',2,'커피의 풍미를 온화하게 해요.'],['휘핑크림(유지방 30~36% 이상)',2,'케이크·디저트용이에요.'],['발효 크림(유지방 18% 이상, 젖산균 발효)',2,'새콤한 사워크림이 돼요.'],['플라스틱 크림(유지방 80% 이상)',2,'실온 고체. 버터 원료예요.']]),{st:'종류별 크림'}),
+ T('살균·냉각','heat','#fff4c9','안전·보관','살균하고 식힙니다.',null,{st:'살균 크림'}),
+ PK('#fff4c9','크림')]},
+
+{name:'가염 버터',sub:'교동·연압',src:FIG(63),
+ intro:'크림을 교동해 지방 입자를 뭉치고 버터밀크를 빼낸 뒤 가염·연압합니다.',
+ raw:{col:'#f4f0e6',st:'원유'},final:'가염 버터',
+ done:'크림에 충격을 주면 지방구 막이 깨져 지방 입자가 뭉칩니다. 이것을 모아 짓이기며(연압) 남은 물을 고르게 흩어 버터 조직을 부드럽고 치밀하게 만들어요.',
+ concepts:[['버터','우유에서 분리한 크림을 교반해 지방구의 막을 파괴하면 지방 입자가 모여 덩어리가 되고, 이것을 짓이겨 남아 있는 물이 분산되도록 만든 것.'],['버터의 종류','가염 버터(소금 넣음), 무염 버터, 발효 버터(크림에 젖산균 넣어 발효), 감성 버터(발효하지 않은 버터).'],['중화','크림의 산도가 높으면 지방 손실이 크고 풍미·보존성이 떨어지므로 산도를 유지하도록 크림을 중화해요.'],['숙성','살균·냉각한 크림을 2~5℃에서 12시간 정도 저온에 두는 일. 크림의 굳기와 퍼짐을 일정하게 해요.'],['교동(churning)','크림에 충격을 가해 지방구끼리 뭉쳐 버터 입자를 만들고 버터밀크와 분리되게 하는 작업.'],['연압','방망이로 버터 입자를 짓이기는 공정. 조직을 부드럽고 치밀하게 하고 소금의 용해·분산을 돕고 수분 함량을 조절·고르게 분산해요.']],
+ steps:[
+ IN('원유 입고','#f4f0e6','원유'),
+ T('크림 분리','sep','#fff4c9','원심 분리','원심 분리기로 크림을 분리합니다.',null,{out:'탈지유',st:'크림'}),
+ T('중화','mix','#fff4c9','산도 조절·지방 손실 방지','크림의 산도를 중화합니다.',null,{add:'중화제',st:'중화 크림'}),
+ T('살균','heat','#fff4c9','병원균·효소 불활성','살균합니다.',null,{st:'살균 크림'}),
+ T('냉각','cool','#fff4c9','지방 결정화 준비','식힙니다.',null,{st:'냉각 크림'}),
+ T('숙성','cool','#fff4c9','굳기·퍼짐 일정','저온에서 두어 숙성시킵니다.',
+  R('숙성 온도',-5,20,1,4,'℃',[2,5],3,'지방이 알맞게 결정화되어 굳기와 퍼짐이 일정해요(약 12시간).','너무 낮아 지나치게 굳어요.','온도가 높아 지방이 충분히 굳지 않아요.'),{st:'숙성 크림'}),
+ T('교동','mix','#ffe99a','지방구 막 파괴·입자 형성','저으며 충격을 줘 지방 입자를 만듭니다.',null,{out:'버터밀크',st:'버터 입자'}),
+ T('수세','wash','#ffe99a','잔여 버터밀크 제거','찬물로 씻어 버터밀크를 제거합니다.',null,{add:'찬물',out:'씻은 물',st:'씻은 버터 입자'}),
+ T('가염','salt','#ffe99a','풍미·보존성','소금을 넣습니다.',null,{add:'소금',st:'가염 버터 입자'}),
+ T('연압','press','#ffe066','조직 치밀화·수분 분산','짓이겨 수분을 고르게 분산시킵니다.',null,{st:'버터'}),
+ PK('#ffe066','가염 버터')]}
+]);
+
+/* ───── 알류 ───── */
+G('알류',[
+{name:'액상란',sub:'1차 가공 · 전란액·난백액·난황액',src:TXT,
+ intro:'달걀을 깨서 알맹이만 모은 액상 제품이에요. 대량 조리·제과·제빵에 편리합니다.',
+ raw:{col:'#fbeacb',st:'원료'},final:'액상란',
+ done:'세척과 껍데기 살균, 할란, 여과, 저온 살균 순으로 위생적으로 만듭니다. 전란액은 제과·제빵·급식, 난백액은 제과·수산 연제품·소시지·음료, 난황액은 마요네즈에 주로 써요.',
+ concepts:[['액상란','달걀을 할란해 얻은 것. 전란액, 난백액, 난황액이 있어요.'],['전란액·난백액·난황액의 용도','전란액은 제과·제빵 원료와 단체 급식, 난백액은 제과용·수산 연제품·소시지·음료용, 난황액은 대부분 마요네즈 제조에 쓰여요.'],['할란','달걀을 깨어 내용물을 꺼내는 일.']],
+ steps:[
+ IN('정상란 입고','#fbeacb','정상란','정상란 선별'),
+ T('세척','wash','#fbeacb','껍데기 오염물 제거','알껍데기를 씻습니다.',null,{add:'물',st:'씻은 알'}),
+ T('껍데기 살균','heat','#fbeacb','표면 살균','알껍데기 표면을 살균합니다.',null,{st:'살균란'}),
+ T('할란','egg','#fbeacb','깨어 내용물 꺼내기','알을 깨 내용물을 꺼냅니다.',null,{out:'알껍데기',st:'전란액'}),
+ T('분리','sort','#fbeacb','필요하면 흰자·노른자 나누기','용도에 따라 전란·난백·난황으로 나눕니다.',
+  O('만들 액상란',[['전란액',2,'제과·제빵·단체 급식에 써요.'],['난백액',2,'제과, 수산 연제품, 소시지, 음료에 써요.'],['난황액',2,'대부분 마요네즈에 써요.']]),{st:'선택 액란'}),
+ T('여과','filter','#fbeacb','이물질 제거','이물질을 걸러 냅니다.',null,{out:'이물질',st:'여과 액란'}),
+ T('저온 살균','heat','#fbeacb','살모넬라 등 사멸·응고 방지','응고되지 않는 낮은 온도에서 살균합니다.',
+  R('살균 온도',45,80,1,60,'℃',[58,64],4,'병원균은 죽이고 단백질은 응고되지 않아요.','살균이 부족해요.','단백질이 응고되어 품질이 떨어져요.'),{st:'살균 액란'}),
+ PK('#fbeacb','액상란','냉장 포장합니다.')]},
+
+{name:'마요네즈',sub:'2차 가공 · 수중 유적형 유화',src:TXT,
+ intro:'노른자의 레시틴이 식용유와 식초를 한데 섞어 주는 유화 식품이에요.',
+ raw:{col:'#fbe28a',st:'원료'},final:'마요네즈',
+ done:'노른자와 조미료를 먼저 균일하게 섞고, 기름을 아주 조금씩 넣다가 점차 늘리면 기름방울이 작게 흩어져 안정된 수중 유적형 유화물이 됩니다. 진공으로 산소를 빼 지방 산패를 줄여요.',
+ concepts:[['마요네즈','달걀노른자에 있는 레시틴의 유화성을 이용해, 노른자와 식물성 식용유를 주원료로 식초·향신료·조미료를 첨가해 수중 유적형으로 유화시킨 것.'],['수중 유적형(O/W) 유화','물 속에 기름방울이 흩어져 있는 형태.'],['진공 교반의 목적','제품 속 산소를 제거해 지방 산패를 최소화하기 위해서예요.']],
+ steps:[
+ IN('난황 입고','#fbe28a','난황액','난황액 준비'),
+ T('난황·조미료 혼합','mix','#fbe28a','레시틴이 유화 준비','노른자에 식초·소금·향신료 등을 넣고 고속으로 섞어 균일하게 합니다.',null,{add:'식초·소금·향신료',st:'난황 혼합액'}),
+ T('기름 주입','mix','#fbe28a','수중 유적형 유화','기름을 조금씩 넣다가 점점 늘립니다.',
+  O('기름을 넣는 방법',[['처음엔 조금씩 떨어뜨리고 점점 늘린다',2,'기름방울이 작게 흩어져 안정된 유화가 만들어져요.'],['한꺼번에 붓는다',0,'기름과 물이 분리돼요.'],['기름을 먼저 다 넣고 노른자를 나중에',0,'레시틴이 기름을 감쌀 수 없어요.']]),{add:'식물성 식용유',st:'유화 중'}),
+ T('진공 교반','mix','#fbe28a','산소 제거·산패 최소화','진공에서 잠시 더 저어 줍니다.',null,{out:'공기(산소)',st:'마요네즈 반죽'}),
+ T('충전·포장','pack','#fbe28a','밀봉','용기에 담아 밀봉합니다.',null,{st:'마요네즈'})]},
+
+{name:'건조란',sub:'1차 가공 · 분무·피막 건조',src:TXT,
+ intro:'달걀 내용물을 말려 가루로 만든 제품이에요. 저장성이 크고 수송이 편리합니다.',
+ raw:{col:'#fbeacb',st:'원료'},final:'건조란',
+ done:'저장성이 크고 수송이 편리하지만 맛, 색, 용해성, 응고성, 기포성이 떨어지고 갈변·산패가 쉬워요. 아이스크림, 쿠키, 케이크 등에 사용합니다.',
+ concepts:[['건조란','알의 내용물을 건조한 것. 저장성이 크고 수송이 편리하나 맛·색·용해성·응고성·기포성이 크게 저하되고 갈변과 지방 산패가 쉬워요.'],['분무 건조 / 피막 건조','분무 건조는 액을 안개처럼 뿜어 건조, 피막 건조는 회전 원통에 달걀액을 엷은 막으로 흘려 건조한 뒤 칼날로 긁어내요.']],
+ steps:[
+ IN('신선란 입고','#fbeacb','신선란'),
+ T('세척·할란','egg','#fbeacb','내용물 꺼내기','씻어 깨 내용물을 꺼냅니다.',null,{out:'알껍데기',st:'액란'}),
+ T('여과·살균','filter','#fbeacb','이물질·병원균 제거','걸러 살균합니다.',null,{out:'이물질',st:'살균 액란'}),
+ T('건조','dry','#fff2c0','수분 제거','건조합니다.',
+  O('건조 방법',[['분무 건조',2,'액을 안개처럼 뿜어 열풍으로 순간 건조해요.'],['피막 건조',2,'회전 원통 위에 엷은 막으로 말려 칼날로 긁어내요.'],['햇볕에 말림',0,'위생 문제와 품질 저하가 커요.']]),{out:'수분',st:'건조란'}),
+ T('분쇄·체질','mill','#fff2c0','가루 균일화','분쇄하고 체로 칩니다.',null,{st:'건조란 가루'}),
+ PK('#fff2c0','건조란','습기·산소를 막아 포장합니다.')]},
+
+{name:'동결란',sub:'1차 가공 · 급속 동결',src:TXT,
+ intro:'껍데기를 벗긴 알을 급속 동결해 저장해요. 노른자는 해동하면 굳기 쉬워 소금·설탕을 섞습니다.',
+ raw:{col:'#fbeacb',st:'원료'},final:'동결란',
+ done:'폴리에틸렌 봉지에 담아 −20~−30℃에서 급속 동결해 저장합니다. 노른자는 해동 시 유동성을 잃고 젤 모양으로 굳기 쉬우므로 소금이나 설탕을 섞어 동결해요.',
+ concepts:[['동결란','달걀 껍데기를 제거해 동결한 것. 폴리에틸렌 봉지에 넣고 −20~−30℃에서 급속 동결해 저장해요.'],['노른자 동결 시 주의','해동하면 유동성을 잃고 젤처럼 굳기 쉬우므로 소금·설탕을 섞어 동결해요.']],
+ steps:[
+ IN('신선란 입고','#fbeacb','신선란'),
+ T('세척·할란','egg','#fbeacb','내용물 꺼내기','씻어 깨 내용물을 꺼냅니다.',null,{out:'알껍데기',st:'액란'}),
+ T('여과·살균','filter','#fbeacb','이물질·병원균 제거','걸러 살균합니다.',null,{out:'이물질',st:'살균 액란'}),
+ T('첨가물 혼합','mix','#fbeacb','노른자 젤화 방지','노른자는 소금이나 설탕을 섞습니다.',
+  O('노른자 처리',[['소금이나 설탕을 섞는다',2,'해동 때 젤 모양으로 굳는 것을 막아요.'],['그대로 동결한다',0,'해동하면 유동성을 잃고 젤처럼 굳어요.']]),{add:'소금·설탕',st:'혼합 액란'}),
+ T('포장','pack','#fbeacb','봉지에 담기','폴리에틸렌 봉지에 담습니다.',null,{st:'포장 액란'}),
+ T('급속 동결','cool','#d5e7f5','결정 미세화·품질 유지','급속으로 얼립니다.',
+  R('동결 온도',-40,0,1,-25,'℃',[-30,-20],5,'급속 동결로 품질이 잘 유지돼요.','온도가 충분히 낮지 않아 천천히 얼어요.','필요 이상으로 낮아 에너지가 낭비돼요.'),{st:'동결란'})]},
+
+{name:'피단',sub:'2차 가공 · 알칼리 숙성',src:TXT,
+ intro:'소금과 알칼리성 염류를 알 속에 스며들게 해 흰자·노른자를 응고·숙성시킨 조미 달걀이에요.',
+ raw:{col:'#fbeacb',st:'원료'},final:'피단',
+ done:'소금, 찰흙, 왕겨, 석회, 물을 섞어 껍데기에 바르고 낮은 온도에서 3~5개월 두면 알칼리가 속으로 스며듭니다. 흰자는 투명한 적갈색, 노른자는 겉은 흑녹색, 속은 황갈색이 되고 암모니아와 황화수소가 독특한 향미를 만들어요.',
+ concepts:[['피단','알 속에 소금과 알칼리성 염류를 침투시켜 내용물을 응고하고 숙성한 조미 달걀. 중국에서 오리알로 만들었으며 달걀을 쓰기도 해요.'],['피단 반죽 재료','소금, 찰흙, 왕겨, 석회, 물을 적당한 비율로 혼합.'],['피단의 변화','알칼리에 의해 흰자는 응고되어 투명한 적갈색, 노른자는 가장자리가 응고되어 외부는 흑녹색·내부는 황갈색. 암모니아와 황화수소 등 휘발성 물질이 독특한 향미를 만들어요.']],
+ steps:[
+ IN('오리알(달걀) 입고','#fbeacb','알','신선한 알 선별'),
+ T('반죽 만들기','mix','#b5a28a','알칼리·소금 공급원','소금, 찰흙, 왕겨, 석회, 물을 섞습니다.',null,{add:'소금·찰흙·왕겨·석회·물',st:'피단 반죽'}),
+ T('반죽 바르기','press','#b5a28a','알껍데기에 고르게 도포','알껍데기에 약 1cm 두께로 고르게 바릅니다.',
+  R('반죽 두께',0,3,0.1,1,'cm',[0.8,1.2],0.4,'알칼리가 알 속으로 고르게 스며들어요.','너무 얇아 알칼리가 부족해요.','너무 두꺼워 낭비되고 숙성이 늦어져요.'),{st:'반죽 바른 알'}),
+ T('항아리에 담기','pack','#8a7456','숙성 용기','항아리에 담아 밀봉합니다.',null,{st:'담근 알'}),
+ T('저온 숙성','ferment','#6b5a3a','알칼리 침투·응고·풍미','낮은 온도에서 3~5개월 숙성합니다.',
+  R('숙성 기간',0,8,0.5,4,'개월',[3,5],1,'알칼리가 충분히 스며 응고·숙성이 알맞게 돼요.','숙성이 덜 돼 덜 응고돼요.','너무 오래되어 알칼리가 과하게 스며들어 쓴맛이 나요.'),{st:'숙성란'}),
+ T('세척·반죽 제거','wash','#4a4030','겉 반죽 떼기','겉의 반죽을 닦아 냅니다.',null,{add:'물',out:'반죽 찌꺼기',st:'피단'}),
+ PK('#4a4030','피단')]}
+]);
+
+const quiz=[
+['고기의 장기 보존을 위해 소금에 절이는 조작이며, 요즘은 소금 외 첨가물을 섞어 간을 하는 가공 작업을 가리키는 것은?',['염지','훈연','유화','균질'],0,'염지(curing)는 간 먹이기라고도 해요.'],
+['염지의 목적으로 볼 수 없는 것은?',['효소의 작용 촉진','독특한 풍미 부여','저장성 향상','육색소 고정'],0,'염지는 육색 고정, 보수성·결착성 증가, 저장성 향상, 풍미 부여가 목적이에요.'],
+['염지 방법 중 염지액을 고기에 직접 주입하는 것은?',['염지액 주사법','건염법','습염법','냉훈법'],0,'건염법은 문질러 주고, 습염법은 염지액에 담가요.'],
+['소시지·프레스 햄처럼 고기를 갈아 만드는 제품의 품질을 결정하는 매우 중요한 공정은?',['유화','균질','교동','응고'],0,'염용성 단백질을 충분히 추출해 단백질·지방·물을 안정되게 유화시켜요.'],
+['가장 낮은 온도에서 훈연해 가장 좋은 훈연향을 부여할 수 있는 방법은?',['냉훈법(10~30℃)','온훈법(30~50℃)','열훈법(50~90℃)','배훈법(90~120℃)'],0,'냉훈법은 장기 보존에 유리하고 살라미·생햄에 써요.'],
+['수분 50% 이상이라 부드럽지만 장기 저장이 어려운 소시지는?',['더메스틱 소시지','드라이 소시지','생햄','베이컨'],0,'드라이 소시지는 수분을 30% 이하로 낮춰 저장성을 높여요.'],
+['베이컨의 원료로 쓰이는 돼지 부위는?',['복부육(삼겹살)','뒷다리','등심만','내장'],0,'지방이 많은 삼겹살을 정형·염지한 뒤 훈연하거나 가열해요.'],
+['우유 지방구를 작게 만들어 크림 분리를 막는 공정은?',['균질','살균','청징','표준화'],0,'균질기의 작은 노즐로 지방구를 2μm 이하로 만들어요.'],
+['고온 단시간 살균법(HTST)의 조건은?',['72~75℃에서 15초','63~65℃에서 30분','130~150℃에서 1~5초','100℃에서 1시간'],0,'LTLT는 63~65℃ 30분, UHT는 130~150℃ 1~5초예요.'],
+['연유를 만들 때 농축 전 예열하는 목적이 아닌 것은?',['지방을 모두 분리하려고','미생물과 효소를 파괴하려고','수분 증발을 빠르게 하려고','단백질 변성으로 열 안정성과 점도를 높이려고'],0,'예열은 지방 분리가 아니라 위의 세 가지가 목적이에요.'],
+['분유 제조에서 농축유를 가루로 만드는 건조 방법은?',['분무 건조','동결','압착','증류'],0,'고온 열풍에 안개처럼 뿜어 순간 건조해요.'],
+['치즈 제조에서 우유를 응고시켜 커드를 만드는 효소는?',['레닛','아밀레이스','펙티네이스','라이페이스'],0,'레닛은 송아지 제4위에서 분비되는 응유 효소예요.'],
+['치즈 제조에서 스타터를 넣는 목적은?',['젖산을 만들고 풍미·조직을 개선','소금을 넣으려고','색을 내려고','살균하려고'],0,'스타터는 젖산균 같은 종균 미생물이에요.'],
+['버터를 만들 때 크림에 충격을 가해 지방 입자를 뭉치게 하는 공정은?',['교동','숙성','중화','연압'],0,'교동으로 버터밀크와 분리되고, 연압으로 조직이 치밀해져요.'],
+['우유의 지방을 분리해 만든 식품과 단백질을 응고·숙성시켜 만든 식품을 순서대로 쓴 것은?',['버터, 치즈','치즈, 버터','연유, 분유','요구르트, 크림'],0,'스스로 점검하기: 치즈는 단백질, 버터는 지방 성분을 이용해요.'],
+['마요네즈는 달걀노른자의 어떤 성질을 이용한 알 가공품인가?',['레시틴의 유화성','단백질의 열 응고','지방의 산패','비타민 D'],0,'노른자의 레시틴이 기름과 식초를 수중 유적형으로 유화시켜요.'],
+['피단을 만드는 데 쓰이는 재료가 아닌 것은?',['식초','소금','석회','왕겨'],0,'소금, 찰흙, 왕겨, 석회, 물을 섞어 알껍데기에 발라요.'],
+['동결란에서 노른자에 소금이나 설탕을 섞는 이유는?',['해동 시 젤처럼 굳는 것을 막으려고','맛을 짜게 하려고','색을 진하게 하려고','살균하려고'],0,'노른자는 해동 시 유동성을 잃고 굳기 쉬워요.'],
+['발효유에서 젖산균이 하는 일로 알맞은 것은?',['젖당을 젖산으로 발효시킨다','지방을 분리한다','단백질을 지방으로 바꾼다','녹말을 당으로 분해한다'],0,'젖산이 생기면 단백질이 응고되어 커드가 만들어져요.']];
+return {products,quiz};
+})()
+;
+</script>
+<script>
+(function(){
+const $=s=>document.querySelector(s),$$=s=>Array.from(document.querySelectorAll(s));
+const L=(a,b,t)=>a+(b-a)*t,clamp=(x,a,b)=>Math.max(a,Math.min(b,x)),sm=t=>t*t*(3-2*t);
+const tween=(ms,fn)=>new Promise(res=>{const t0=performance.now();(function f(now){const p=clamp((now-t0)/ms,0,1);fn(p);if(p<1)requestAnimationFrame(f);else res();})(t0);});
+const wait=ms=>new Promise(r=>setTimeout(r,ms));
+const D=window.DOM,SV=$('#fSvg');
+let pi=0,cur=0,view=0,vals=[],res=[],busy=false,token=0,P=null,pts=[],finished=false,tokIdx=-1,cols=4,lay=null,tok={x:0,y:0};
+const S='stroke="var(--ink)" stroke-width="2.4" stroke-linejoin="round" stroke-linecap="round"';
+const G={
+ in:`<path d="M-16-12h32l-10 18v14h-12v-14z" fill="none" ${S}/><circle cx="-4" cy="-20" r="3" fill="var(--cd)"/><circle cx="6" cy="-23" r="3" fill="var(--cd)"/>`,
+ sort:`<path d="M-19 6h38" ${S} stroke-dasharray="7 5" fill="none"/><circle cx="-8" cy="-6" r="6" fill="var(--cd)" stroke="var(--ink)" stroke-width="1.5"/><circle cx="9" cy="-4" r="4" fill="var(--cd)" stroke="var(--ink)" stroke-width="1.5"/><circle cx="0" cy="17" r="2.5" fill="var(--cd)"/><circle cx="-12" cy="19" r="2" fill="var(--cd)"/>`,
+ wash:`<path d="M-13-6q-6 10 0 14q6-4 0-14zM2-16q-6 10 0 14q6-4 0-14zM12-2q-5 9 0 12q5-3 0-12z" fill="var(--water)" stroke="var(--ink)" stroke-width="1.6"/>`,
+ soak:`<path d="M-18-14v28q0 6 6 6h24q6 0 6-6v-28" fill="none" ${S}/><path d="M-18-2q6-5 12 0t12 0 12 0v16q0 6-6 6h-24q-6 0-6-6z" fill="var(--water)" opacity=".75"/>`,
+ mill:`<circle r="17" fill="none" ${S}/><g class="spin"><path d="M0-15v30M-13-7.5l26 15M13-7.5l-26 15" ${S}/></g><circle r="3.5" fill="var(--ink)"/>`,
+ cut:`<path d="M-17 15L11-15M-17-15L11 15" ${S}/><circle cx="-17" cy="15" r="4.5" fill="none" ${S}/><circle cx="-17" cy="-15" r="4.5" fill="none" ${S}/><path d="M14 0h8" ${S}/>`,
+ mix:`<rect x="-17" y="-8" width="34" height="28" rx="5" fill="none" ${S}/><g class="spin"><path d="M0-22v22M-11 7h22" ${S}/></g>`,
+ heat:`<path d="M-16-4h32v16q0 6-6 6h-20q-6 0-6-6z" fill="none" ${S}/><path d="M-8-9q-4-5 0-9t0-5M2-9q-4-5 0-9t0-5M11-9q-4-5 0-9" fill="none" stroke="var(--muted)" stroke-width="2.2" stroke-linecap="round"/><path d="M-7 22c-5-5 1-8 1-12c4 3 5 6 7 3c1 4 4 6-1 9z" fill="var(--hot)"/>`,
+ cool:`<g stroke="var(--cool)" stroke-width="3" stroke-linecap="round"><path d="M0-19v38M-16-9.5l32 19M16-9.5l-32 19"/><path d="M-5-15l5 4 5-4M-5 15l5-4 5 4" stroke-width="2"/></g>`,
+ press:`<path d="M-18-17h36M0-17v22" ${S}/><rect x="-14" y="5" width="28" height="7" fill="var(--stage)" ${S}/><path d="M-18 17h36" ${S}/>`,
+ filter:`<path d="M-19-14h38l-13 15v14h-12v-14z" fill="none" ${S}/><path d="M-5 20v4M1 20v4M7 20v4" stroke="var(--water)" stroke-width="3" stroke-linecap="round"/>`,
+ ferment:`<rect x="-14" y="-10" width="28" height="32" rx="7" fill="none" ${S}/><rect x="-9" y="-17" width="18" height="7" rx="2" fill="none" ${S}/><circle cx="-4" cy="9" r="2.6" fill="var(--cd)"/><circle cx="5" cy="1" r="2.2" fill="var(--cd)"/><circle cx="1" cy="15" r="2" fill="var(--cd)"/>`,
+ dry:`<circle r="8" fill="var(--cd)" ${S}/><g stroke="var(--hot)" stroke-width="3" stroke-linecap="round"><path d="M0-14v-6M0 14v6M-14 0h-6M14 0h6M-10-10l-4-4M10 10l4 4M10-10l4-4M-10 10l-4 4"/></g>`,
+ smoke:`<path d="M-12 20q-7-8 0-14t0-14M0 20q-7-8 0-14t0-14M12 20q-7-8 0-14t0-14" fill="none" stroke="var(--muted)" stroke-width="3.2" stroke-linecap="round"/><path d="M-18 22h36" ${S}/>`,
+ bake:`<rect x="-19" y="-15" width="38" height="32" rx="4" fill="none" ${S}/><rect x="-13" y="-6" width="26" height="16" rx="2" fill="var(--hot)" opacity=".35" ${S}/><circle cx="-11" cy="-11" r="1.8" fill="var(--ink)"/><circle cx="-4" cy="-11" r="1.8" fill="var(--ink)"/>`,
+ pack:`<path d="M-17-8l17-9 17 9v19l-17 9-17-9z" fill="none" ${S}/><path d="M-17-8l17 9 17-9M0 1v19" fill="none" ${S}/>`,
+ salt:`<g fill="var(--panel)" ${S}><rect x="-15" y="-10" width="9" height="9" transform="rotate(12 -10 -5)"/><rect x="3" y="-14" width="9" height="9" transform="rotate(-15 7 -10)"/><rect x="-6" y="3" width="10" height="10" transform="rotate(25 -1 8)"/><rect x="8" y="5" width="8" height="8"/></g>`,
+ sep:`<circle r="17" fill="none" ${S}/><g class="spin"><path d="M-10-6a11 11 0 0 1 14-6M10 6a11 11 0 0 1-14 6" fill="none" ${S}/></g><circle r="3" fill="var(--ink)"/>`,
+ egg:`<path d="M0-19c9 0 14 12 14 20a14 14 0 0 1-28 0c0-8 5-20 14-20z" fill="var(--panel)" ${S}/><circle cx="0" cy="4" r="6" fill="var(--cd)"/>`
+};
+const NS='http://www.w3.org/2000/svg';
+function geom(){
+  const N=P.steps.length;cols=SV.parentNode.clientWidth<520?2:4;
+  const C=cols===2?2:Math.min(4,N),pitch=150,rows=Math.ceil(N/C),bw=cols===2?130:118;
+  const cx=c=>cols===2?100+c*160:(C===1?320:(C<4?(640-2*88)/(C-1)*c+88:88+c*158));
+  const vw=cols===2?360:640,vh=rows*pitch+16;
+  lay=P.steps.map((s,i)=>{const r=Math.floor(i/C),k=i%C,c=r%2?C-1-k:k;const x=C<4&&cols!==2?cx(c)+((4-C)*0):cx(c);return{x:x,top:36+r*pitch};});
+  pts=lay.map(l=>({x:l.x,y:l.top+90}));
+  SV.setAttribute('viewBox','0 0 '+vw+' '+vh);return{bw:bw,vw:vw};
+}
+const pill=st=>{let o='';
+ if(st.add){const w=st.add.length*11+28;o+=`<g class="pl add" transform="translate(0 -20)"><rect x="${-w/2}" y="-9" width="${w}" height="18" rx="9"/><text y="4" text-anchor="middle" font-size="11">↓ ${st.add}</text></g>`;}
+ if(st.out){const w=st.out.length*11+28;o+=`<g class="pl out" transform="translate(0 117)"><rect x="${-w/2}" y="-9" width="${w}" height="18" rx="9"/><text y="4" text-anchor="middle" font-size="11">↓ ${st.out}</text></g>`;}
+ return o;};
+function fly(x0,y0,x1,y1,ms,col){const c=document.createElementNS(NS,'circle');c.setAttribute('r',6);c.setAttribute('fill',col);c.setAttribute('stroke','var(--ink)');c.setAttribute('stroke-width','1.5');SV.appendChild(c);
+ tween(ms,p=>{c.setAttribute('cx',L(x0,x1,sm(p)));c.setAttribute('cy',L(y0,y1,sm(p)));c.setAttribute('opacity',p>.85?1-(p-.85)/.15:1);}).then(()=>c.remove());}
+const io=s=>{const a=[];if(s.add)a.push('투입: <b>'+s.add+'</b>');if(s.out)a.push('부산물: <b>'+s.out+'</b>');return a.length?'<br><span class="io">'+a.join(' · ')+'</span>':'';};
+function drawScene(){
+  const g=geom(),bw=g.bw;let s='';
+  const path=['M10 '+pts[0].y].concat(pts.map(p=>'L'+p.x+' '+p.y)).join(' ');
+  s+=`<path d="${path}" fill="none" stroke="var(--muted)" stroke-width="12" stroke-linecap="round" stroke-linejoin="round" opacity=".4"/><path d="${path}" fill="none" stroke="var(--panel)" stroke-width="2" stroke-dasharray="6 8" opacity=".9"/>`;
+  P.steps.forEach((st,i)=>{const l=lay[i],nm=st.n,fs=nm.length>8?11.5:nm.length>6?13:15;
+    s+=`<g class="stn" data-i="${i}" tabindex="0" role="button" aria-label="${i+1}번 ${nm}" transform="translate(${l.x} ${l.top})"><rect class="bx" x="${-bw/2}" y="0" width="${bw}" height="106" rx="10"/><g transform="translate(0 38)"><g class="gl">${G[st.k]||G.in}</g></g><text x="0" y="76" text-anchor="middle" font-size="${fs}" font-weight="600" fill="var(--ink)">${nm}</text><circle cx="${-bw/2+13}" cy="13" r="10" fill="var(--accent)"/><text x="${-bw/2+13}" y="17.5" text-anchor="middle" font-size="12" font-weight="600" fill="var(--accent-ink)" style="font-family:var(--mono)">${i+1}</text><text class="ck" x="${bw/2-14}" y="19" text-anchor="middle" font-size="16" font-weight="700" fill="var(--good)"></text>${st.ln?`<text x="0" y="16" text-anchor="middle" font-size="10" fill="var(--muted)">${st.ln}</text>`:''}${pill(st)}</g>`;});
+  s+=`<g id="tok"><circle class="t" r="10" fill="${tokCol()}" stroke="var(--ink)" stroke-width="2"/><circle cx="-3" cy="-3.5" r="3" fill="#fff" opacity=".55"/></g>`;
+  SV.innerHTML=s;
+  $$('#fSvg .stn').forEach(g=>{const i=+g.dataset.i;g.addEventListener('click',()=>{view=i;render();paint();});g.addEventListener('keydown',e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();view=i;render();paint();}});});
+  setTokIdx(tokIdx);paint();
+}
+function tokCol(){return cur>0||finished?P.steps[Math.min(finished?P.steps.length-1:cur-1,P.steps.length-1)].col:P.raw.col;}
+function setTok(x,y){tok.x=x;tok.y=y;const t=$('#tok');if(t)t.setAttribute('transform','translate('+x+' '+y+')');}
+function setTokIdx(i){tokIdx=i;if(i<0)setTok(16,pts[0].y);else setTok(pts[i].x,pts[i].y);}
+function paint(){
+  $$('#fSvg .stn').forEach((g,i)=>{g.querySelectorAll('.pl').forEach(p=>p.classList.toggle('got',i<cur||finished));g.classList.toggle('cur',i===cur&&!finished);g.classList.toggle('done',i<cur||finished);g.classList.toggle('view',i===view&&(view!==cur||finished));
+    const ck=g.querySelector('.ck');if(ck)ck.textContent=(i<cur||finished)?'✓':'';});
+  const bar=$('#stateBar'),N=P.steps.length,onI=finished?N-1:cur-1;let from=0,to=N-1;
+  if(N>9){from=clamp(onI-2,0,N-6);to=Math.min(N-1,from+5);}
+  let h=from===0?`<span class="${cur===0&&!finished?'on':''}" style="--c:${P.raw.col}"><i></i>${P.raw.st}</span>`:'<span>…</span>';
+  for(let i=from;i<=to;i++){const s=P.steps[i];const reached=i<cur||finished;h+=`<em>→</em><span class="${i===onI?'on':''}" style="--c:${reached?s.col:'transparent'}"><i></i>${s.st}</span>`;}
+  if(to<N-1)h+='<em>→</em><span>… '+(N-1-to)+'단계</span>';
+  bar.innerHTML=h;
+}
+function judge(i){
+  const p=P.steps[i].p;if(!p)return{s:null,msg:'',read:''};const v=vals[i];
+  if(p.t==='opt'){const o=p.opts[v];return{s:o[1],msg:o[2],read:o[0]};}
+  const a=p.ideal[0],b=p.ideal[1];let sc,msg;
+  if(v>=a&&v<=b){sc=2;msg=p.ok;}else{const d=v<a?a-v:v-b;sc=d<=p.near?1:0;msg=v<a?p.low:p.high;}
+  return{s:sc,msg:msg,read:v+p.unit+(p.read?' ('+p.read(v)+')':'')};
+}
+function best(p){return p.t==='opt'?p.opts.filter(o=>o[1]===2).map(o=>o[0]).join(' / '):p.ideal[0]+(p.ideal[0]===p.ideal[1]?'':'~'+p.ideal[1])+p.unit;}
+function render(){
+  const s=P.steps[view],p=s.p,N=P.steps.length;
+  $('#phN').textContent=view+1;$('#phT').textContent=s.n;$('#phU').textContent=s.u;$('#phD').innerHTML=s.d+io(s);
+  const ctl=$('#phC');ctl.innerHTML='';$('#phR').textContent='';
+  const live=p&&((view===cur&&!finished&&!busy)||finished);
+  if(p){
+    if(!finished&&view>cur){ctl.innerHTML=`<p class="read">앞 공정을 마치면 이 공정의 운전 조건(${p.label})을 정할 수 있어요.</p>`;}
+    else if(p.t==='opt'){
+      ctl.innerHTML=`<div class="field"><label>${p.label}</label><div class="chips" id="prC" style="margin:8px 0 0"></div></div>`;
+      const box=$('#prC');p.opts.forEach((o,k)=>{const b=document.createElement('button');b.type='button';b.className='chip';b.textContent=o[0];b.disabled=!live;b.setAttribute('aria-pressed',String(vals[view]===k));
+        b.addEventListener('click',()=>{vals[view]=k;Array.from(box.children).forEach((c,m)=>c.setAttribute('aria-pressed',String(m===k)));});box.appendChild(b);});
+    }else{
+      ctl.innerHTML=`<div class="field"><label for="prI">${p.label}<output id="prO"></output></label><input type="range" id="prI" min="${p.min}" max="${p.max}" step="${p.step}" value="${vals[view]}"${live?'':' disabled'}></div>`;
+      const upd=()=>{const v=+$('#prI').value;vals[view]=v;$('#prO').textContent=v+p.unit;$('#phR').innerHTML=p.read?'<b>'+p.read(v)+'</b>':'';};
+      $('#prI').addEventListener('input',upd);upd();
+    }
+  }
+  const showRun=(view===cur&&!finished)||(finished&&!!p);
+  $('#bRun').hidden=!showRun;$('#bRun').disabled=busy;$('#bRun').textContent=finished?'이 조건으로 다시 판정':'이 공정 가동 ▶';
+  $('#bBack').hidden=finished||view===cur;$('#bAuto').disabled=busy||finished;
+}
+function quality(){let g=0,m=0;res.forEach(r=>{if(r&&r.s!==null){g+=r.s;m+=2;}});const all=P.steps.filter(s=>s.p).length*2;return{got:g,max:all,pct:all?Math.round(100*g/all):100,done:m};}
+function meter(){const q=quality();const doneAny=q.done>0;$('#qBar').style.width=(doneAny?Math.round(100*q.got/q.done):0)+'%';$('#qTxt').textContent=doneAny?Math.round(100*q.got/q.done)+'%':'-';}
+function addLog(i,j){
+  const li=document.createElement('li');li.className=j.s===null?'':'s'+j.s;
+  const mark=j.s===2?'○':j.s===1?'△':j.s===0?'×':'·';
+  li.innerHTML=`<b>${i+1}. ${P.steps[i].n}</b> ${mark} ${j.s===null?'공정을 마쳤습니다.':'<span style="font-family:var(--mono);font-size:12.5px">'+j.read+'</span> — '+j.msg}`;
+  $('#log').appendChild(li);li.scrollIntoView({block:'nearest'});
+}
+async function runStep(){
+  if(busy||finished||view!==cur)return;const my=token,i=cur,st=P.steps[i];
+  if(st.p&&vals[i]<0){$('#phR').textContent='먼저 운전 조건을 골라 주세요.';return;}
+  busy=true;render();const g=$$('#fSvg .stn')[i];g.classList.add('work');if(st.add)fly(lay[i].x,lay[i].top-20,lay[i].x,lay[i].top+44,800,'#5aa9e0');
+  await wait(1000);if(my!==token)return;g.classList.remove('work');if(st.out)fly(lay[i].x,lay[i].top+70,lay[i].x,lay[i].top+117,600,'#c98a3e');
+  const j=judge(i);res[i]=j;addLog(i,j);meter();
+  const t=$('#tok circle.t');if(t)t.setAttribute('fill',st.col);
+  await wait(350);if(my!==token)return;
+  if(i<P.steps.length-1){
+    const a=tok,b=pts[i+1],x0=a.x,y0=a.y;
+    await tween(650,p=>setTok(L(x0,b.x,sm(p)),L(y0,b.y,sm(p))));if(my!==token)return;
+    tokIdx=i+1;cur=i+1;view=cur;busy=false;paint();render();
+  }else{cur=N_();finished=true;busy=false;view=i;paint();render();showResult();}
+}
+const N_=()=>P.steps.length;
+async function auto(){
+  if(busy||finished)return;const my=token;
+  while(!finished&&my===token){
+    const st=P.steps[cur];if(st.p&&vals[cur]<0){view=cur;render();$('#phR').textContent='이 공정은 운전 조건을 직접 골라야 해요. 고른 뒤 다시 눌러 주세요.';return;}
+    view=cur;await runStep();if(my!==token)return;await wait(200);
+  }
+}
+function rejudge(){
+  if(!finished||!P.steps[view].p)return;const i=view,j=judge(i);res[i]=j;
+  const li=document.createElement('li');li.className='s'+j.s;li.innerHTML=`<b>${i+1}. ${P.steps[i].n}</b> 다시 판정 ${j.s===2?'○':j.s===1?'△':'×'} <span style="font-family:var(--mono);font-size:12.5px">${j.read}</span> — ${j.msg}`;
+  $('#log').appendChild(li);li.scrollIntoView({block:'nearest'});meter();showResult();
+}
+function showResult(){
+  const q=quality(),R=$('#result'),pct=q.pct;
+  const gr=pct>=85?'우수한 품질':pct>=60?'보통 품질':'품질 미달';
+  let rows='';P.steps.forEach((s,i)=>{if(!s.p)return;const j=res[i];const k=j.s===2?'<span class="ok">○ 알맞음</span>':j.s===1?'<span class="mid">△ 아쉬움</span>':'<span class="no">× 부적절</span>';rows+=`<tr><td>${s.n}</td><td>${j.read}</td><td>${k}</td><td>${best(s.p)}</td></tr>`;});
+  R.hidden=false;
+  R.innerHTML=`<h3>제품 완성: ${P.final}</h3><div class="grade"><b>${pct}점</b><span>${gr}</span></div>${rows?`<div class="scroll"><table class="tbl"><thead><tr><th>공정</th><th>내 조건</th><th>판정</th><th>알맞은 조건</th></tr></thead><tbody>${rows}</tbody></table></div>`:''}<p class="desc" style="margin-top:10px">${P.done}</p><p class="desc" style="margin-top:6px">공정 상자를 눌러 조건을 바꾸고 [이 조건으로 다시 판정]을 눌러 점수를 올려 보세요.</p>`;
+  R.scrollIntoView({block:'nearest'});
+}
+function setProduct(i){
+  token++;busy=false;pi=i;P=D.products[i];cur=0;view=0;finished=false;tokIdx=-1;
+  vals=P.steps.map(s=>s.p?(s.p.t==='opt'?-1:s.p.val):null);res=P.steps.map(()=>null);
+  $('#pIntro').innerHTML='<b>'+P.sub+'</b> · '+P.intro+(P.src?'<br><span class="src">'+P.src+'</span>':'');
+  const nt=$('#notes');nt.hidden=!(P.concepts&&P.concepts.length);if(P.concepts){$('#notesBody').innerHTML=P.concepts.map(c=>'<div class="nc"><b>'+c[0]+'</b>'+c[1]+'</div>').join('');$('#notesSum').textContent='핵심 개념 노트 ('+P.concepts.length+')';}$('#log').innerHTML='';$('#result').hidden=true;$('#qBar').style.width='0';$('#qTxt').textContent='-';
+  drawScene();render();buildOrd();
+}
+let rz=0;window.addEventListener('resize',()=>{clearTimeout(rz);rz=setTimeout(()=>{const c=SV.parentNode.clientWidth<520?2:4;if(c!==cols&&P){const t=tokIdx;drawScene();setTokIdx(t);}},150);});
+$('#bRun').addEventListener('click',()=>{if(finished)rejudge();else runStep();});
+$('#bBack').addEventListener('click',()=>{view=cur;render();paint();});
+$('#bAuto').addEventListener('click',auto);
+$('#bReset').addEventListener('click',()=>setProduct(pi));
+/* 순서 맞추기 */
+let oq=[],on=0,omis=0;
+function buildOrd(){
+  const idx=P.steps.map((_,i)=>i);for(let k=idx.length-1;k>0;k--){const j=Math.floor(Math.random()*(k+1));[idx[k],idx[j]]=[idx[j],idx[k]];}
+  if(idx.every((v,k)=>v===k)&&idx.length>1)idx.push(idx.shift());
+  oq=idx;on=0;omis=0;const box=$('#ordCards');box.innerHTML='';$('#ordSeq').innerHTML='';$('#ordMsg').textContent=P.name+'의 공정을 처음부터 순서대로 눌러 보세요.';
+  idx.forEach(i=>{const b=document.createElement('button');b.type='button';b.textContent=P.steps[i].n;b.addEventListener('click',()=>{
+    if(i===on){b.disabled=true;const li=document.createElement('li');li.innerHTML='<b>'+P.steps[i].n+'</b> <span style="color:var(--muted)">'+P.steps[i].u+'</span>';$('#ordSeq').appendChild(li);on++;
+      $('#ordMsg').textContent=on===P.steps.length?(omis===0?'한 번에 모두 맞혔어요! 제품: '+P.final:'완성! 틀린 횟수 '+omis+'번. 제품: '+P.final):'맞아요. 다음은?';}
+    else{omis++;b.classList.remove('shake');void b.offsetWidth;b.classList.add('shake');$('#ordMsg').textContent='아직 이 단계는 아니에요. 앞 공정부터 다시 생각해 보세요.';}
+  });box.appendChild(b);});
+}
+$('#ordReset').addEventListener('click',buildOrd);
+/* 퀴즈 */
+let score=0;
+function buildQuiz(){
+  score=0;$('#qzScore').textContent='0 / '+D.quiz.length;const list=$('#qzList');list.innerHTML='';
+  D.quiz.map(q0=>{const ix=q0[1].map((_,i)=>i);for(let k=ix.length-1;k>0;k--){const j=Math.floor(Math.random()*(k+1));[ix[k],ix[j]]=[ix[j],ix[k]];}return [q0[0],ix.map(i=>q0[1][i]),ix.indexOf(q0[2]),q0[3]];}).forEach((q,qi)=>{const f=document.createElement('fieldset');f.className='q';f.innerHTML='<legend>'+(qi+1)+'. '+q[0]+'</legend><div class="opts"></div><p class="exp" hidden></p>';
+    const box=f.querySelector('.opts'),exp=f.querySelector('.exp');let done=false;
+    q[1].forEach((t,oi)=>{const b=document.createElement('button');b.type='button';b.className='opt';b.textContent=t;
+      b.addEventListener('click',()=>{if(done)return;done=true;const ok=oi===q[2];if(ok)score++;const bs=box.querySelectorAll('.opt');bs[q[2]].classList.add('right');bs[q[2]].textContent='○ '+q[1][q[2]];
+        if(!ok){b.classList.add('wrong');b.textContent='× '+t;}exp.hidden=false;exp.textContent=(ok?'정답입니다. ':'아쉬워요. ')+q[3];$('#qzScore').textContent=score+' / '+D.quiz.length;});box.appendChild(b);});
+    list.appendChild(f);});
+}
+$('#qzReset').addEventListener('click',buildQuiz);
+/* 탭 */
+function setMode(m){['run','ord','quiz'].forEach(k=>{$('#s-'+k).hidden=k!==m;$('#m-'+k).setAttribute('aria-selected',String(k===m));});$('#prodChips').hidden=m==='quiz';$('#pIntro').hidden=m==='quiz';if(m==='run'&&P){const t=tokIdx;drawScene();setTokIdx(t);}}
+$$('.tabs button').forEach(b=>b.addEventListener('click',()=>setMode(b.dataset.m)));
+const box=$('#prodChips');let lastG=null,grow=null;D.products.forEach((p,i)=>{if(!grow||(p.g&&p.g!==lastG)){lastG=p.g;grow=document.createElement('div');grow.className='pg';if(p.g){const l=document.createElement('span');l.className='pgl';l.textContent=p.g;grow.appendChild(l);}box.appendChild(grow);}const b=document.createElement('button');b.type='button';b.className='chip';b.textContent=p.name;b.setAttribute('aria-pressed','false');
+  b.addEventListener('click',()=>{$$('#prodChips .chip').forEach((c,k)=>c.setAttribute('aria-pressed',String(k===i)));setProduct(i);});grow.appendChild(b);});
+buildQuiz();$$('#prodChips .chip')[0].click();
+})();
+
+</script>
